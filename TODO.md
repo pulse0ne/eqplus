@@ -1,0 +1,11 @@
+# TODOs
+- [x] Figure out CURRENT_STATE
+- [ ] Figure out captureTab
+- [x] Maybe have simplified popup with just a capture button, then actual EQ in options page?
+- [x] Themes (react-colorful color picker)
+- [ ] Allow up to 24 filters
+- [ ] Change up display so that we don't have to show all of the filter types/enabled info
+- [ ] Change up model to have dynamic filter count
+- [ ] Change 'Choose' to just a FancySelect (get rid of icon selection)
+- [ ] Popup may also have an EQ display...not sure
+- [ ] Pre-configured profiles for using a preset for a particular domain

@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "eq+",
+  "version": "1.0.0",
+  "author": "Tyler Snedigar <snedigart@gmail.com>",
+  "homepage_url": "https://github.com/pulse0ne/eqplus",
+  "description": "In-browser parametric equalization",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "storage",
+    "tabs",
+    "tabCapture"
+  ],
+  "options_ui": {
+    "page": "options/index.html"
+  },
+  "background": {
+    "service_worker": "background/eqplus.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "eq+",
+    "default_popup": "popup/index.html",
+    "browser_style": false
+  }
+}
