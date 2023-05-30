@@ -6,7 +6,7 @@ function ViewWrapper ({ children }: React.PropsWithChildren) {
   const label = location.pathname === '/' ? 'EQUALIZER' : location.pathname.replaceAll('/', '').toUpperCase();
   return (
     <VBox>
-      <h1>{label}</h1>
+      <h1 style={{ userSelect: 'none' }}>{label}</h1>
       {children}
     </VBox>
   );

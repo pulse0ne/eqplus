@@ -5,22 +5,36 @@ import EQPlus from '../../src-common/types';
 import { Button } from '../components/Button';
 import uuid from '../utils/uuid';
 import { CanvasPlot } from '../components/CanvasPlot';
-import { HBox, HSpacer } from '../components/FlexBox';
+import { HBox, HSpacer, VBox } from '../components/FlexBox';
 import equalizer from '../eq/equalizer';
 import { FREQ_START, NYQUIST } from '../../src-common/audio-constants';
 import loadStorageValue from '../utils/loadStorageValue';
 import { DEFAULT_STATE } from '../../src-common/defaults';
 import debounce from '../../src-common/debounce';
+import Dial from '../components/Dial';
+import styled from 'styled-components';
+
+const DIAL_SIZE = 60;
+
+const frequencyToValue = (value: number) => (Math.log10(value / NYQUIST) / Math.log10(NYQUIST / FREQ_START)) + 1;
 
 const saveStateDebounced = debounce((state: EQPlus.EQState) => {
   chrome.storage.local.set({ [EQPlus.Keys.EQ_STATE]: state });
 }, 500);
 
+const Surface = styled.div`
+  background-color: ${({ theme }) => theme.colors.surface};
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+`;
+
 function EqualizerControls () {
   const [ filters, setFilters ] = useState<EQPlus.Filter[]>([]);
   const [ preampValue, setPreampValue ] = useState<number>(1.0);
   const [ selectedIndex, setSelectedIndex ] = useState<number|null>(null);
-  const [ currentFreq, setCurrentFreq ] = useState<number>(FREQ_START);
+  const [ currentFreq, setCurrentFreq ] = useState(FREQ_START);
+  const [ currentGain, setCurrentGain ] = useState(0.0);
 
   useEffect(() => {
     loadStorageValue(EQPlus.Keys.EQ_STATE, DEFAULT_STATE).then(state => {
@@ -88,16 +102,64 @@ function EqualizerControls () {
     handleSelectedFilterChanged(null);
   }, [selectedIndex, filters, preampValue]);
 
+  const handleGainChanged = useCallback((newGain: number) => {
+    console.log(newGain);
+    setCurrentGain(newGain)
+  }, []);
+
   return (
     <ViewWrapper>
-      <CanvasPlot
-        disabled={false}
-        filters={filters}
-        activeNodeIndex={selectedIndex}
-        onHandleSelected={handleSelectedFilterChanged}
-        onFilterChanged={handleFilterChanged}
-        onFilterAdded={handleAddFilter}
-      />
+      <HBox>
+        <VBox>
+          <CanvasPlot
+            disabled={false}
+            filters={filters}
+            activeNodeIndex={selectedIndex}
+            onHandleSelected={handleSelectedFilterChanged}
+            onFilterChanged={handleFilterChanged}
+            onFilterAdded={handleAddFilter}
+          />
+          <Surface>
+            <HBox style={{ gap: '8px' }} alignItems="center">
+              <Dial
+                label="Freq."
+                value={frequencyToValue(currentFreq)}
+                min={0}
+                max={1}
+                size={DIAL_SIZE}
+              />
+              <Dial
+                label="Gain"
+                onZero={() => handleGainChanged(0.0)}
+                value={currentGain}
+                min={-20}
+                max={20}
+                size={DIAL_SIZE}
+                onChange={handleGainChanged}
+              />
+              <Dial
+                label="Q"
+                onZero={() => console.log('zero')}
+                value={1.0}
+                min={0}
+                max={10}
+                size={DIAL_SIZE}
+                onChange={(nv) => console.log(nv)}
+              />
+              <Dial
+                label="Preamp"
+                onZero={() => console.log('zero')}
+                value={1}
+                min={0}
+                max={2}
+                size={DIAL_SIZE}
+                onChange={(nv) => console.log(nv)}
+              />
+            </HBox>
+            
+          </Surface>
+        </VBox>
+      </HBox>
       <HBox>
         <Button onClick={() => handleAddFilter()}>Add Filter</Button>
         <HSpacer size={2} />

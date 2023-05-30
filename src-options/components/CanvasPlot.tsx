@@ -40,7 +40,6 @@ const EDITABLE_Q: Record<BiquadFilterType, boolean> = {
 
 const CanvasContainer = styled.div<{ w: number, h: number }>`
   position: relative;
-  margin: 2px;
   width: ${props => props.w}px;
   height: ${props => props.h}px;
 `;
@@ -126,7 +125,10 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
 
     this.setupCanvasDpr();
     this.syncBiquads(this.props.filters);
-    this.drawGrid();
+    window.requestAnimationFrame(() => {
+      this.drawGrid();
+      this.draw();
+    });
     this.previousContext = this.context;
   }
 

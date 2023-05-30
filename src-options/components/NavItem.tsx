@@ -29,6 +29,7 @@ const NavLabel = styled.span`
   font-weight: bold;
   margin-left: 8px;
   text-transform: uppercase;
+  user-select: none;
 `;
 
 export type NavItemProps = {

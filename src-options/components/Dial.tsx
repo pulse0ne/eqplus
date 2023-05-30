@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useEvent } from '../utils/useEvent';
 import styled from 'styled-components';
+import { HBox, VBox } from './FlexBox';
 
 const DialWrapper = styled.div`
   position: relative;
@@ -18,7 +19,6 @@ const DialGrip = styled.div`
 
 const DialGripTick = styled.div<{disabled: boolean}>`
   user-select: none;
-  pointer-events: none;
   position: absolute;
   top: 15%;
   left: 50%;
@@ -26,7 +26,6 @@ const DialGripTick = styled.div<{disabled: boolean}>`
 `;
 
 const DialSvg = styled.svg`
-  pointer-events: none;
   position: absolute;
   stroke-linecap: round !important;
   transition: all ${({ theme }) => theme.misc.transition};
@@ -45,6 +44,21 @@ const DialHandle = styled.circle`
   fill: ${({ theme }) => theme.colors.dialKnob};
 `;
 
+const Zeroer = styled.i<{ disabled: boolean }>`
+  color: ${({ theme, disabled }) => disabled ? theme.colors.disabled : theme.colors.accentPrimary};
+  font-size: 14px;
+  margin: -2px;
+  cursor: ${({ disabled }) => disabled ? 'pointer' : 'default'};
+`;
+
+function ZeroerWrapper(props: { disabled: boolean, onZero: () => void }) {
+  return (
+    <HBox justifyContent="center">
+      <Zeroer disabled={props.disabled} className="eqplus arrow_drop_down" onClick={props.onZero} />
+    </HBox>
+  );
+}
+
 type DialProps = {
   value?: number,
   min?: number,
@@ -52,7 +66,9 @@ type DialProps = {
   size?: number,
   disabled?: boolean,
   sensitivity?: number,
-  onChange: (value: number) => void
+  onChange?: (value: number) => void,
+  label?: string,
+  onZero?: () => void
 };
 
 type XY = {
@@ -67,7 +83,9 @@ function Dial({
   size = 55,
   disabled = false,
   sensitivity = 2048,
-  onChange = () => undefined
+  onChange = () => undefined,
+  label,
+  onZero
 }: DialProps) {
   const [ xy, setXy] = useState<XY>({ x: 0, y: 0 });
 
@@ -128,7 +146,6 @@ function Dial({
     if (disabled) return;
     const { pageX, pageY } = e;
     setXy({ x: pageX, y: pageY });
-    // console.log('adding listeners');
     document.addEventListener('mousemove', mouseMove);
     document.addEventListener('mouseup', mouseUp);
   }, [disabled]);
@@ -164,22 +181,33 @@ function Dial({
   });
 
   const mouseUp = useCallback(() => {
-    // console.log('removing listeners');
     document.removeEventListener('mousemove', mouseMove);
     document.removeEventListener('mouseup', mouseUp);
   }, []);
 
+  const handleZero = useCallback(() => {
+    !disabled && onZero?.();
+  }, [disabled, onZero]);
+
   return (
-    <DialWrapper style={dialStyle} onDrag={handleDrag}>
-      <DialGrip style={gripStyle} onMouseDown={mouseDown} onWheel={mouseWheel}>
-        <DialGripTick disabled={disabled} style={tickStyle} />
-      </DialGrip>
-      <DialSvg viewBox={viewBox} style={svgStyle}>
-        <DialHandle cx={dialCircleAdjustment} cy={dialCircleAdjustment} r={dialCircleRadius} />
-        <DialTrack d={trackPath} fill="none" />
-        <DialTrackFill disabled={disabled} d={trackPath} fill="none" style={fillStyle} />
-      </DialSvg>
-    </DialWrapper>
+    <VBox>
+      {label && <span style={{ textAlign: 'center', userSelect: 'none' }}>{label}</span>}
+      {onZero ? (
+        <ZeroerWrapper disabled={disabled} onZero={handleZero} />
+      ) : (
+        <Zeroer disabled={true} className="eqplus arrow_drop_down" style={{ color: 'transparent' }} />
+      )}
+      <DialWrapper style={dialStyle} onDrag={handleDrag}>
+        <DialGrip style={gripStyle} onMouseDown={mouseDown} onWheel={mouseWheel}>
+          <DialGripTick disabled={disabled} style={tickStyle} />
+        </DialGrip>
+        <DialSvg viewBox={viewBox} style={svgStyle}>
+          <DialHandle cx={dialCircleAdjustment} cy={dialCircleAdjustment} r={dialCircleRadius} />
+          <DialTrack d={trackPath} fill="none" />
+          <DialTrackFill disabled={disabled} d={trackPath} fill="none" style={fillStyle} />
+        </DialSvg>
+      </DialWrapper>
+    </VBox>
   );
 }
 

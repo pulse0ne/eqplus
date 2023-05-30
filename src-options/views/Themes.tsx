@@ -159,7 +159,7 @@ function Themes({
         <WidgetWrapper>
           <SectionWrapper>
             <h2>Equalizer</h2>
-            <ColorBlurb><b>Colors:</b> Accent Primary, Disabled, freqResponseLine, graphBackground, graphLine, graphLineMarker, graphText</ColorBlurb>
+            <ColorBlurb><b>Colors:</b> Accent Primary, Disabled, Freq Response Line, Graph Background, Graph Line, Graph Line Marker, Graph Text</ColorBlurb>
             <VSpacer size={2} />
             <CanvasPlot
               filters={[
