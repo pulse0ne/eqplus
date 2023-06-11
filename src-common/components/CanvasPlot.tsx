@@ -1,8 +1,9 @@
 import { Component, Context, ContextType, createRef } from 'react';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
-import EQPlus from '../../src-common/types';
 import { AUDIO_CONTEXT, NYQUIST } from '../../src-common/audio-constants';
 import { FREQ_START } from '../../src-common/audio-constants';
+import { IFilter } from '../../src-common/types/filter';
+import { Theme } from '../../src-common/types/theme';
 
 const TWO_PI = 2.0 * Math.PI;
 const HANDLE_RADIUS = 5;
@@ -16,28 +17,6 @@ const FREQ_LINES = {
   '10k': 10000
 };
 
-const USE_GAIN: Record<BiquadFilterType, boolean> = {
-  highpass: false,
-  lowshelf: true,
-  peaking: true,
-  notch: false,
-  highshelf: true,
-  lowpass: false,
-  allpass: false,
-  bandpass: false
-};
-
-const EDITABLE_Q: Record<BiquadFilterType, boolean> = {
-  highpass: false,
-  lowshelf: false,
-  peaking: true,
-  notch: true,
-  highshelf: false,
-  lowpass: false,
-  allpass: false,
-  bandpass: false
-};
-
 const CanvasContainer = styled.div<{ w: number, h: number }>`
   position: relative;
   width: ${props => props.w}px;
@@ -48,7 +27,8 @@ const CanvasWrapper = styled.canvas`
   position: absolute;
   top: 0;
   left: 0;
-  border-radius: 4px;
+  border-top-right-radius: 8px;
+  border-top-left-radius: 8px;
   background-color: ${props => props.id === 'graph' ? 'transparent' : props.theme.colors.graphBackground};
 `;
 
@@ -64,7 +44,7 @@ type CanvasPlotProps = {
   width: number,
   height: number,
   activeNodeIndex: number|null,
-  filters: EQPlus.Filter[],
+  filters: IFilter[],
   disabled: boolean,
   wheelSensitivity?: number,
   onFilterChanged?: (changes: FilterChanges) => void,
@@ -85,7 +65,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
 
   declare context: ContextType<typeof ThemeContext>
 
-  private previousContext: EQPlus.Theme|null = null;
+  private previousContext: Theme|null = null;
 
   static defaultProps = {
     width: 750, 
@@ -151,14 +131,14 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     graph.style.height = `${this.props.height}px`;
   }
 
-  private syncBiquads(filters: EQPlus.Filter[]) {
+  private syncBiquads(filters: IFilter[]) {
     const nodes: BiquadFilterNode[] = [];
     filters.forEach((f, ix) => {
       const bqf = AUDIO_CONTEXT.createBiquadFilter();
-      bqf.frequency.value = f.frequency;
-      bqf.Q.value = f.q;
-      bqf.gain.value = f.gain;
-      bqf.type = f.type;
+      bqf.frequency.value = f.getFrequency();
+      bqf.Q.value = f.getQ();
+      bqf.gain.value = f.getGain();
+      bqf.type = f.getType();
       if (ix > 0) {
         bqf.connect(nodes[ix - 1]);
       }
@@ -221,7 +201,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
         const m = this.graphRef.current!.width / Math.log10(NYQUIST / FREQ_START);
         const [ adjustedX, adjustedY ] = [ offsetX * DPR, offsetY * DPR ];
         const frequency = Math.pow(10, adjustedX / m) * FREQ_START;
-        if (USE_GAIN[active.type]) {
+        if (active.usesGain()) {
           onFilterChanged?.({ frequency, gain: DB_SCALE * (((-2 * adjustedY) / this.graphRef.current!.height) + 1) });
         } else {
           onFilterChanged?.({ frequency });
@@ -234,8 +214,8 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     const { disabled, wheelSensitivity = 2048, filters, activeNodeIndex, onFilterChanged } = this.props;
     if (disabled) return;
     const active = activeNodeIndex !== null ? filters[activeNodeIndex] : null;
-    if (active && EDITABLE_Q[active.type]) {
-      const q = Math.max(0, Math.min(active.q - e.deltaY / (wheelSensitivity / 10), 10));
+    if (active && active.usesQ()) {
+      const q = Math.max(0, Math.min(active.getQ() - e.deltaY / (wheelSensitivity / 10), 10));
       onFilterChanged?.({ q });
     }
   }
@@ -319,10 +299,10 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     const magRes: Float32Array[] = [];
     filters.forEach((f, ix) => {
       const filterNode = this.filterNodes[ix];
-      filterNode.frequency.value = f.frequency;
-      filterNode.gain.value = f.gain;
-      filterNode.Q.value = f.q;
-      filterNode.type = f.type;
+      filterNode.frequency.value = f.getFrequency();
+      filterNode.gain.value = f.getGain();
+      filterNode.Q.value = f.getQ();
+      filterNode.type = f.getType();
       const mr = new Float32Array(width);
       filterNode.getFrequencyResponse(freqHz, mr, new Float32Array(width));
       magRes.push(mr);
@@ -360,8 +340,8 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     const theme = this.context;
     filters.forEach((f, ix) => {
       const buffer = 0;
-      const x = Math.floor(mVal * Math.log10(f.frequency / FREQ_START));
-      const y = (USE_GAIN[f.type] ? Math.min(Math.max(10, yVals[x]), height + buffer) : height * 0.5) - buffer;
+      const x = Math.floor(mVal * Math.log10(f.getFrequency() / FREQ_START));
+      const y = (f.usesGain() ? Math.min(Math.max(10, yVals[x]), height + buffer) : height * 0.5) - buffer;
 
       graphCtx.strokeStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
       graphCtx.lineWidth = 3;

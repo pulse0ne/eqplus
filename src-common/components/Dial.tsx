@@ -28,7 +28,6 @@ const DialGripTick = styled.div<{disabled: boolean}>`
 const DialSvg = styled.svg`
   position: absolute;
   stroke-linecap: round !important;
-  transition: all ${({ theme }) => theme.misc.transition};
 `;
 
 const DialTrack = styled.path`
@@ -48,7 +47,6 @@ const Zeroer = styled.i<{ disabled: boolean }>`
   color: ${({ theme, disabled }) => disabled ? theme.colors.disabled : theme.colors.accentPrimary};
   font-size: 14px;
   margin: -2px;
-  cursor: ${({ disabled }) => disabled ? 'pointer' : 'default'};
 `;
 
 function ZeroerWrapper(props: { disabled: boolean, onZero: () => void }) {
@@ -161,21 +159,24 @@ function Dial({
   }, [disabled, min, max, sensitivity, value, onChange]);
 
   const mouseMove = useEvent((e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const { pageX, pageY } = e;
-    const scaleY = (max - min) / 256;
-    const scaleX = (max - min) / 256;
+    const scaleY = (max - min) / 128;
+    // const scaleX = (max - min) / 256;
     const deltaY = (pageY - xy.y) * scaleY;
-    const deltaX = (pageX - xy.x) * scaleX;
+    // const deltaX = (pageX - xy.x) * scaleX;
     setXy({ x: pageX, y: pageY });
-    const d = deltaY - deltaX;
-    let nv = value - d;
+    // const d = deltaY - deltaX;
+    // let nv = value - d;
+    let nv = value - deltaY;
     if (nv < min) {
       nv = min;
     }
     if (nv > max) {
       nv = max;
     }
-    if (d !== 0) {
+    if (deltaY !== 0) {
       onChange(nv);
     }
   });

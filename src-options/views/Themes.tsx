@@ -37,7 +37,6 @@ const SectionWrapper = styled(VBox)`
 
 const ExampleSurface = styled.div`
   padding: 12px;
-  box-shadow: ${({ theme }) => theme.misc.boxShadow};
   background-color: ${({ theme }) => theme.colors.surface};
 `;
 

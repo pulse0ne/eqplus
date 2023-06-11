@@ -9,7 +9,6 @@ const EditLabelInput = styled.input`
   width: 4em;
   border: none;
   background: rgba(255, 255, 255, 0.8);
-  box-shadow: var(--standard-box-shadow);
 `;
 
 const EditLabelText = styled.div`

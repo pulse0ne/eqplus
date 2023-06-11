@@ -5,7 +5,7 @@ import EQPlus from '../../src-common/types';
 import { Button } from '../components/Button';
 import uuid from '../utils/uuid';
 import { CanvasPlot } from '../components/CanvasPlot';
-import { HBox, HSpacer, VBox } from '../components/FlexBox';
+import { HBox, HSpacer, VBox, VSpacer } from '../components/FlexBox';
 import equalizer from '../eq/equalizer';
 import { FREQ_START, NYQUIST } from '../../src-common/audio-constants';
 import loadStorageValue from '../utils/loadStorageValue';
@@ -14,7 +14,7 @@ import debounce from '../../src-common/debounce';
 import Dial from '../components/Dial';
 import styled from 'styled-components';
 
-const DIAL_SIZE = 60;
+const DIAL_SIZE = 75;
 
 const frequencyToValue = (value: number) => (Math.log10(value / NYQUIST) / Math.log10(NYQUIST / FREQ_START)) + 1;
 
@@ -24,10 +24,19 @@ const saveStateDebounced = debounce((state: EQPlus.EQState) => {
 
 const Surface = styled.div`
   background-color: ${({ theme }) => theme.colors.surface};
-  padding: 12px;
-  border-radius: 4px;
-  margin-top: 8px;
+  padding: 8px;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
 `;
+
+type FilterParameters = Omit<EQPlus.Filter, 'id'>;
+
+const DEFAULT_PARAMS: FilterParameters = {
+  frequency: FREQ_START,
+  gain: 0.0,
+  q: 1.0,
+  type: 'peaking'
+};
 
 function EqualizerControls () {
   const [ filters, setFilters ] = useState<EQPlus.Filter[]>([]);
@@ -35,6 +44,7 @@ function EqualizerControls () {
   const [ selectedIndex, setSelectedIndex ] = useState<number|null>(null);
   const [ currentFreq, setCurrentFreq ] = useState(FREQ_START);
   const [ currentGain, setCurrentGain ] = useState(0.0);
+  const [ currentParams, setCurrentParams ] = useState(DEFAULT_PARAMS);
 
   useEffect(() => {
     loadStorageValue(EQPlus.Keys.EQ_STATE, DEFAULT_STATE).then(state => {
@@ -120,7 +130,7 @@ function EqualizerControls () {
             onFilterAdded={handleAddFilter}
           />
           <Surface>
-            <HBox style={{ gap: '8px' }} alignItems="center">
+            <HBox alignItems="center" justifyContent="space-around">
               <Dial
                 label="Freq."
                 value={frequencyToValue(currentFreq)}
@@ -141,7 +151,7 @@ function EqualizerControls () {
                 label="Q"
                 onZero={() => console.log('zero')}
                 value={1.0}
-                min={0}
+                min={0.1}
                 max={10}
                 size={DIAL_SIZE}
                 onChange={(nv) => console.log(nv)}
@@ -149,9 +159,9 @@ function EqualizerControls () {
               <Dial
                 label="Preamp"
                 onZero={() => console.log('zero')}
-                value={1}
-                min={0}
-                max={2}
+                value={0}
+                min={-20}
+                max={20}
                 size={DIAL_SIZE}
                 onChange={(nv) => console.log(nv)}
               />
@@ -160,6 +170,7 @@ function EqualizerControls () {
           </Surface>
         </VBox>
       </HBox>
+      <VSpacer size={2} />
       <HBox>
         <Button onClick={() => handleAddFilter()}>Add Filter</Button>
         <HSpacer size={2} />

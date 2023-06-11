@@ -1,6 +1,6 @@
 import 'styled-components';
-import EQPlus from './types';
+import { Theme } from './types/theme';
 
 declare module 'styled-components' {
-  export interface DefaultTheme extends EQPlus.Theme {}
+  export interface DefaultTheme extends Theme {}
 }

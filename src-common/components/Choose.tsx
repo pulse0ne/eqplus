@@ -26,7 +26,6 @@ const ChoosePopup = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 4px;
   z-index: 999;
-  box-shadow: ${({ theme }) => theme.misc.boxShadow};
 `;
 
 const ChooseOption = styled.div`

@@ -7,16 +7,14 @@ const DEFAULT_FILTERS: EQPlus.Filter[] = [48, 225, 1067, 5060].map(f => {
 const DEFAULT_PRESETS: EQPlus.Preset[] = [
   {
     name: 'Flat',
-    icon: 'audiotrack',
     locked: true,
-    preampGain: 1.0,
+    preampGain: 0.0,
     filters: DEFAULT_FILTERS
   }
 ];
 
 const BASE_THEME_MISC: EQPlus.Theme['misc'] = {
-  transition: '0.3s cubic-bezier(0, 0, 0.24, 1)',
-  boxShadow: '0 2px 3px rgba(0, 0, 0, .13), 1px 2px 2px rgba(0, 0, 0, .1), -1px -2px 2px rgba(0, 0, 0, .05)'
+  transition: '0.3s cubic-bezier(0, 0, 0.24, 1)'
 };
 
 const DEFAULT_THEMES: EQPlus.Theme[] = [
@@ -68,7 +66,7 @@ const DEFAULT_THEMES: EQPlus.Theme[] = [
 
 const DEFAULT_STATE: EQPlus.EQState = {
   filters: DEFAULT_FILTERS,
-  preampValue: 1.0
+  preampValue: 0.0
 };
 
 export {
