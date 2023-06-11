@@ -17,5 +17,5 @@
     "jsx": "react-jsx",
     "types": ["chrome"]
   },
-  "include": [".", "../src-common", "../src-common-ui"]
+  "include": [".", "../src-common"]
 }

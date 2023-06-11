@@ -1,9 +1,9 @@
 import { Component, Context, ContextType, createRef } from 'react';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
-import { AUDIO_CONTEXT, NYQUIST } from '../../src-common/audio-constants';
-import { FREQ_START } from '../../src-common/audio-constants';
-import { IFilter } from '../../src-common/types/filter';
-import { Theme } from '../../src-common/types/theme';
+import { AUDIO_CONTEXT, NYQUIST } from '../src-common/audio-constants';
+import { FREQ_START } from '../src-common/audio-constants';
+import { IFilter } from '../src-common/types/filter';
+import { Theme } from '../src-common/types/theme';
 
 const TWO_PI = 2.0 * Math.PI;
 const HANDLE_RADIUS = 5;

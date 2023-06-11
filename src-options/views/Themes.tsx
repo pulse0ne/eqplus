@@ -1,16 +1,20 @@
 import { useCallback, useState } from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 import { RgbaStringColorPicker } from 'react-colorful';
-import Dial from '../components/Dial';
-import Checkbox from '../components/Checkbox';
-import EQPlus, { Color } from '../../src-common/types';
+import Dial from '../../src-common-ui/Dial';
+import Checkbox from '../../src-common-ui/Checkbox';
 import { DEFAULT_THEMES } from '../../src-common/defaults';
 import ViewWrapper from './ViewWrapper';
-import Choose, { ChooseOption } from '../components/Choose';
-import { HBox, VBox, VSpacer } from '../components/FlexBox';
-import { Button, ToggleButton } from '../components/Button';
+import Choose, { ChooseOption } from '../../src-common-ui/Choose';
+import { HBox, VBox, VSpacer } from '../../src-common-ui/FlexBox';
+import { Button, ToggleButton } from '../../src-common-ui/Button';
 import camelToTitle from '../utils/camelToTitle';
-import { CanvasPlot } from '../components/CanvasPlot';
+import { CanvasPlot } from '../../src-common-ui/CanvasPlot';
+import { Theme } from '../../src-common/types/theme';
+import { Color } from '../../src-common/types/color';
+import { IFilter } from '../../src-common/types/filter';
+import { FilterNode } from '../eq/filters';
+import { AUDIO_CONTEXT } from '../../src-common/audio-constants';
 
 const ColorPicker = styled(RgbaStringColorPicker)`
   & .react-colorful__saturation-pointer {
@@ -98,7 +102,14 @@ const chooseOptions: ChooseOption[] = [
   { value: 'd', icon: 'eqplus speaker' }
 ];
 
-type ThemeColorKey = keyof EQPlus.Theme['colors'];
+const exampleFilters: IFilter[] = [
+  { id: '0', frequency: 128, q: 1.0, type: 'peaking' as BiquadFilterType, gain: 5 },
+  { id: '1', frequency: 512, q: 1.0, type: 'peaking' as BiquadFilterType, gain: -2 },
+  { id: '2', frequency: 2048, q: 1.0, type: 'peaking' as BiquadFilterType, gain: 10 },
+  { id: '3', frequency: 4096, q: 1.0, type: 'peaking' as BiquadFilterType, gain: -5 }
+].map(i => FilterNode.fromFilterParams(i, AUDIO_CONTEXT));
+
+type ThemeColorKey = keyof Theme['colors'];
 
 const swatchKeys: ThemeColorKey[] = ['accentPrimary', 'background', 'textPrimary', 'freqResponseLine'];
 
@@ -161,12 +172,7 @@ function Themes({
             <ColorBlurb><b>Colors:</b> Accent Primary, Disabled, Freq Response Line, Graph Background, Graph Line, Graph Line Marker, Graph Text</ColorBlurb>
             <VSpacer size={2} />
             <CanvasPlot
-              filters={[
-                { id: '0', frequency: 128, q: 1.0, type: 'peaking', gain: 5 },
-                { id: '1', frequency: 512, q: 1.0, type: 'peaking', gain: -2 },
-                { id: '2', frequency: 2048, q: 1.0, type: 'peaking', gain: 10 },
-                { id: '3', frequency: 4096, q: 1.0, type: 'peaking', gain: -5 }
-              ]}
+              filters={exampleFilters}
               activeNodeIndex={0}
               width={400}
               height={200}

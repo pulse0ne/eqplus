@@ -1,6 +1,8 @@
-import EQPlus from '../../src-common/types';
+import { FilterParams } from '../../src-common/types/filter';
+import { Preset } from '../../src-common/types/preset';
 
-function filterToApoLine(filter: EQPlus.Filter, index: number): string {
+
+function filterToApoLine(filter: FilterParams, index: number): string {
   const tokens = [`Filter ${index + 1}:`, 'ON'];
   const [ fc, gain, q ] = [ filter.frequency.toFixed(0), filter.gain.toFixed(1), filter.q.toFixed(3) ];
   switch (filter.type) {
@@ -32,7 +34,7 @@ function filterToApoLine(filter: EQPlus.Filter, index: number): string {
   return tokens.join(' ');
 }
 
-function exportPreset(preset: EQPlus.Preset): Blob {
+function exportPreset(preset: Preset): Blob {
   const lines = [
     '# This preset was exported from eq+',
     `# [VERSION] : ${chrome.runtime.getManifest().version}`,

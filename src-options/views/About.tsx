@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Logo from '../components/Logo';
+import Logo from '../../src-common-ui/Logo';
 import ViewWrapper from './ViewWrapper';
 
 const FancyLink = styled.a`

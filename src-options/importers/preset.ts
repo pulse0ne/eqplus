@@ -1,5 +1,6 @@
-import { FREQ_START } from "../../src-common/audio-constants";
-import EQPlus from "../../src-common/types";
+import { FREQ_START } from '../../src-common/audio-constants';
+import { FilterParams } from '../../src-common/types/filter';
+import { Preset } from '../../src-common/types/preset';
 
 const SILENTLY_IGNORE = ['Device'];
 const FILTER_KEY = 'Filter';
@@ -38,8 +39,8 @@ function processFilterType(filterType: string): BiquadFilterType {
   }
 }
 
-function processFilterLine(line: string): EQPlus.Filter {
-  const filter: EQPlus.Filter = {
+function processFilterLine(line: string): FilterParams {
+  const filter: FilterParams = {
     id: '',
     frequency: FREQ_START,
     gain: 0.0,
@@ -100,12 +101,12 @@ function processPreampLine(line: string): number {
   return preamp;
 }
 
-function importPreset(file: Blob): Promise<WithSoftErrors<{ preset: EQPlus.Preset}>> {
+function importPreset(file: Blob): Promise<WithSoftErrors<{ preset: Preset}>> {
   return file.text().then(rawText => {
     const softErrors: string[] = [];
     console.log(`rawText: ${rawText}`);
     const lines = rawText.split('\n').map(l => l.trim());
-    const filters: EQPlus.Filter[] = [];
+    const filters: FilterParams[] = [];
     let preamp = 0.0;
     for (const line of lines) {
       // comments, blank lines, etc.

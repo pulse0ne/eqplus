@@ -1,6 +1,7 @@
 // import { DEFAULT_FILTERS, DEFAULT_PRESETS, DEFAULT_STATE } from '../src-cmn/defaults';
 // import { CURRENT_STATE, FILTER_PREFIX, PRESETS, buildFilterKey } from '../src-cmn/storage-keys';
-import EQPlus from '../src-common/types';
+
+import { Message } from '../src-common/types/messaging';
 
 const DEBUG = true;
 
@@ -12,12 +13,12 @@ const debugErrHandler = (e: Error) => {
 
 // chrome.storage.local.clear();
 
-chrome.storage.local.get('optionsTabId').then(res => {
-  if (res.optionsTabId) {
-    chrome.tabs.remove(res.optionsTabId).catch(debugErrHandler);
-  }
-  chrome.storage.local.remove('optionsTabId');
-});
+// chrome.storage.local.get('optionsTabId').then(res => {
+//   if (res.optionsTabId) {
+//     chrome.tabs.remove(res.optionsTabId).catch(debugErrHandler);
+//   }
+//   chrome.storage.local.remove('optionsTabId');
+// });
 
 // // write missing storage items on startup
 // chrome.storage.local.get(null)
@@ -134,7 +135,7 @@ const handleSetEnabled = (enabled: boolean) => {
 //     });
 // };
 
-chrome.runtime.onMessage.addListener((msg: EQPlus.Message) => {
+chrome.runtime.onMessage.addListener((msg: Message) => {
   switch (msg.type) {
     // case 'updateFilter':
     //   const updatedFilter: EQPlus.Filter = msg.payload as EQPlus.Filter;

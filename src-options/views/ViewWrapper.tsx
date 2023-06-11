@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { VBox } from '../components/FlexBox';
+import { VBox } from '../../src-common-ui/FlexBox';
 
 function ViewWrapper ({ children }: React.PropsWithChildren) {
   const location = useLocation();

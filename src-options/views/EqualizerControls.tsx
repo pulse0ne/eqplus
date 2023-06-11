@@ -1,26 +1,28 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FilterChanges } from '../components/CanvasPlot';
+import { FilterChanges } from '../../src-common-ui/CanvasPlot';
 import ViewWrapper from './ViewWrapper';
-import EQPlus from '../../src-common/types';
-import { Button } from '../components/Button';
+import { Button } from '../../src-common-ui/Button';
 import uuid from '../utils/uuid';
-import { CanvasPlot } from '../components/CanvasPlot';
-import { HBox, HSpacer, VBox, VSpacer } from '../components/FlexBox';
-import equalizer from '../eq/equalizer';
-import { FREQ_START, NYQUIST } from '../../src-common/audio-constants';
-import loadStorageValue from '../utils/loadStorageValue';
-import { DEFAULT_STATE } from '../../src-common/defaults';
-import debounce from '../../src-common/debounce';
-import Dial from '../components/Dial';
+import { CanvasPlot } from '../../src-common-ui/CanvasPlot';
+import { HBox, HSpacer, VBox, VSpacer } from '../../src-common-ui/FlexBox';
+// import equalizer from '../eq/equalizer';
+import { AUDIO_CONTEXT, FREQ_START, NYQUIST } from '../../src-common/audio-constants';
+// import loadStorageValue from '../utils/loadStorageValue';
+// import { DEFAULT_STATE } from '../../src-common/defaults';
+// import debounce from '../../src-common/debounce';
+import Dial from '../../src-common-ui/Dial';
 import styled from 'styled-components';
+// import { StorageKeys } from '../../src-common/types';
+import { FilterParams } from '../../src-common/types/filter';
+import { FilterNode } from '../eq/filters';
 
 const DIAL_SIZE = 75;
 
 const frequencyToValue = (value: number) => (Math.log10(value / NYQUIST) / Math.log10(NYQUIST / FREQ_START)) + 1;
 
-const saveStateDebounced = debounce((state: EQPlus.EQState) => {
-  chrome.storage.local.set({ [EQPlus.Keys.EQ_STATE]: state });
-}, 500);
+// const saveStateDebounced = debounce((state: EQPlus.EQState) => {
+//   chrome.storage.local.set({ [StorageKeys.EQ_STATE]: state });
+// }, 500);
 
 const Surface = styled.div`
   background-color: ${({ theme }) => theme.colors.surface};
@@ -29,7 +31,7 @@ const Surface = styled.div`
   border-bottom-left-radius: 8px;
 `;
 
-type FilterParameters = Omit<EQPlus.Filter, 'id'>;
+type FilterParameters = Omit<FilterParams, 'id'>;
 
 const DEFAULT_PARAMS: FilterParameters = {
   frequency: FREQ_START,
@@ -39,7 +41,7 @@ const DEFAULT_PARAMS: FilterParameters = {
 };
 
 function EqualizerControls () {
-  const [ filters, setFilters ] = useState<EQPlus.Filter[]>([]);
+  const [ filters, setFilters ] = useState<FilterParams[]>([]);
   const [ preampValue, setPreampValue ] = useState<number>(1.0);
   const [ selectedIndex, setSelectedIndex ] = useState<number|null>(null);
   const [ currentFreq, setCurrentFreq ] = useState(FREQ_START);
@@ -47,10 +49,10 @@ function EqualizerControls () {
   const [ currentParams, setCurrentParams ] = useState(DEFAULT_PARAMS);
 
   useEffect(() => {
-    loadStorageValue(EQPlus.Keys.EQ_STATE, DEFAULT_STATE).then(state => {
-      setFilters(state.filters);
-      setPreampValue(state.preampValue);
-    });
+    // loadStorageValue(StorageKeys.EQ_STATE, DEFAULT_STATE).then(state => {
+    //   setFilters(state.filters);
+    //   setPreampValue(state.preampValue);
+    // });
   }, []);
 
   useEffect(() => {
@@ -72,8 +74,8 @@ function EqualizerControls () {
     if (gain) filter.gain = gain;
     if (q) filter.q = q;
     setFilters([...filters]);
-    equalizer.updateFilter(selectedIndex, filter);
-    saveStateDebounced({ filters, preampValue });
+    // equalizer.updateFilter(selectedIndex, filter);
+    // saveStateDebounced({ filters, preampValue });
   }, [filters, selectedIndex, preampValue]);
 
   const handleAddFilter = useCallback((freq?: number) => {
@@ -94,12 +96,12 @@ function EqualizerControls () {
       }, { last: FREQ_START, l: 0, r: 0, d: 0 });
       frequency = Math.sqrt(gap.l * gap.r);
     }
-    const newFilter: EQPlus.Filter = { id: uuid(), frequency, gain: 0.0, q: 1.0, type: 'peaking' };
+    const newFilter: FilterParams = { id: uuid(), frequency, gain: 0.0, q: 1.0, type: 'peaking' };
     const newFilters = [...filters, newFilter];
     setFilters(newFilters);
     handleSelectedFilterChanged(newFilters.length - 1);
-    equalizer.addFilter(newFilter);
-    saveStateDebounced({ filters, preampValue });
+    // equalizer.addFilter(newFilter);
+    // saveStateDebounced({ filters, preampValue });
   }, [filters, preampValue]);
 
   const handleRemoveFilter = useCallback(() => {
@@ -107,8 +109,8 @@ function EqualizerControls () {
     const newFilters = [...filters];
     newFilters.splice(selectedIndex, 1);
     setFilters(newFilters);
-    equalizer.removeFilter(selectedIndex);
-    saveStateDebounced({ filters, preampValue });
+    // equalizer.removeFilter(selectedIndex);
+    // saveStateDebounced({ filters, preampValue });
     handleSelectedFilterChanged(null);
   }, [selectedIndex, filters, preampValue]);
 
@@ -123,7 +125,7 @@ function EqualizerControls () {
         <VBox>
           <CanvasPlot
             disabled={false}
-            filters={filters}
+            filters={filters.map(i => FilterNode.fromFilterParams(i, AUDIO_CONTEXT))}
             activeNodeIndex={selectedIndex}
             onHandleSelected={handleSelectedFilterChanged}
             onFilterChanged={handleFilterChanged}

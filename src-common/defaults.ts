@@ -1,10 +1,12 @@
-import EQPlus from './types';
+import { FilterParams } from "./types/filter";
+import { Preset } from "./types/preset";
+import { Theme } from "./types/theme";
 
-const DEFAULT_FILTERS: EQPlus.Filter[] = [48, 225, 1067, 5060].map(f => {
+const DEFAULT_FILTERS: FilterParams[] = [48, 225, 1067, 5060].map(f => {
   return { id: `default-${f}`, frequency: f, gain: 0.0, q: 1.0, type: 'peaking' };
 });
 
-const DEFAULT_PRESETS: EQPlus.Preset[] = [
+const DEFAULT_PRESETS: Preset[] = [
   {
     name: 'Flat',
     locked: true,
@@ -13,11 +15,11 @@ const DEFAULT_PRESETS: EQPlus.Preset[] = [
   }
 ];
 
-const BASE_THEME_MISC: EQPlus.Theme['misc'] = {
+const BASE_THEME_MISC: Theme['misc'] = {
   transition: '0.3s cubic-bezier(0, 0, 0.24, 1)'
 };
 
-const DEFAULT_THEMES: EQPlus.Theme[] = [
+const DEFAULT_THEMES: Theme[] = [
   {
     name: 'Default',
     locked: true,
@@ -64,14 +66,14 @@ const DEFAULT_THEMES: EQPlus.Theme[] = [
   }
 ];
 
-const DEFAULT_STATE: EQPlus.EQState = {
-  filters: DEFAULT_FILTERS,
-  preampValue: 0.0
-};
+// const DEFAULT_STATE: EQState = {
+//   filters: DEFAULT_FILTERS,
+//   preampValue: 0.0
+// };
 
 export {
   DEFAULT_FILTERS,
   DEFAULT_PRESETS,
-  DEFAULT_STATE,
+  // DEFAULT_STATE,
   DEFAULT_THEMES
 }

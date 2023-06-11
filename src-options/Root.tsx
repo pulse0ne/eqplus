@@ -4,16 +4,16 @@ import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 import { DEFAULT_THEMES } from '../src-common/defaults';
 import Themes from './views/Themes';
 import GlobalStyles from './utils/globalStyles';
-import { HBox, VBox } from '../src-common/components/FlexBox';
-import NavItem from '../src-common/components/NavItem';
-import Logo from '../src-common/components/Logo';
+import { HBox, VBox } from '../src-common-ui/FlexBox';
+import NavItem from '../src-common-ui/NavItem';
+import Logo from '../src-common-ui/Logo';
 import About from './views/About';
 import EqualizerControls from './views/EqualizerControls';
 import Presets from './views/Presets';
-import equalizer from './eq/equalizer';
+// import equalizer from './eq/equalizer';
 import debounce from '../src-common/debounce';
 import { Theme } from '../src-common/types/theme';
-import { StorageKeys } from '../src-common/types';
+import { StorageKeys } from '../src-common/storage-keys';
 
 const tabCapture: () => Promise<MediaStream> = () => {
   return new Promise((resolve, reject) => {
