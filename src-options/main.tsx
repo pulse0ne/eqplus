@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Root from './Root';
+import Root from './App';
 // import loadStorageValue from './utils/loadStorageValue';
 // import { DEFAULT_STATE } from '../src-common/defaults';
 // import equalizer from './eq/equalizer';

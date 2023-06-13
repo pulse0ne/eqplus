@@ -3,7 +3,6 @@ import { HashRouter, Route, Routes } from 'react-router-dom';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 import { DEFAULT_THEMES } from '../src-common/defaults';
 import Themes from './views/Themes';
-import GlobalStyles from './utils/globalStyles';
 import { HBox, VBox } from '../src-common-ui/FlexBox';
 import NavItem from '../src-common-ui/NavItem';
 import Logo from '../src-common-ui/Logo';
@@ -14,6 +13,7 @@ import Presets from './views/Presets';
 import debounce from '../src-common/debounce';
 import { Theme } from '../src-common/types/theme';
 import { StorageKeys } from '../src-common/storage-keys';
+import GlobalStyles from '../src-common-ui/globalStyles';
 
 const tabCapture: () => Promise<MediaStream> = () => {
   return new Promise((resolve, reject) => {

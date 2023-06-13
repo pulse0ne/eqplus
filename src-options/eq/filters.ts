@@ -85,6 +85,14 @@ export class FilterNode implements IFilter {
     return this.biquad;
   }
 
+  connect(node: AudioNode) {
+    this.biquad.connect(node);
+  }
+
+  disconnect() {
+    this.biquad.disconnect();
+  }
+
   private setAudioParam(key: 'frequency'|'Q'|'gain', value: number) {
     this.biquad[key].setValueAtTime(value, this.context.currentTime);
   }

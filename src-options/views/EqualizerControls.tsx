@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { FilterChanges } from '../../src-common-ui/CanvasPlot';
 import ViewWrapper from './ViewWrapper';
 import { Button } from '../../src-common-ui/Button';
-import uuid from '../utils/uuid';
 import { CanvasPlot } from '../../src-common-ui/CanvasPlot';
 import { HBox, HSpacer, VBox, VSpacer } from '../../src-common-ui/FlexBox';
 // import equalizer from '../eq/equalizer';
@@ -15,6 +14,7 @@ import styled from 'styled-components';
 // import { StorageKeys } from '../../src-common/types';
 import { FilterParams } from '../../src-common/types/filter';
 import { FilterNode } from '../eq/filters';
+import uuid from '../../src-common/utils/uuid';
 
 const DIAL_SIZE = 75;
 

@@ -8,13 +8,13 @@ import ViewWrapper from './ViewWrapper';
 import Choose, { ChooseOption } from '../../src-common-ui/Choose';
 import { HBox, VBox, VSpacer } from '../../src-common-ui/FlexBox';
 import { Button, ToggleButton } from '../../src-common-ui/Button';
-import camelToTitle from '../utils/camelToTitle';
 import { CanvasPlot } from '../../src-common-ui/CanvasPlot';
 import { Theme } from '../../src-common/types/theme';
 import { Color } from '../../src-common/types/color';
 import { IFilter } from '../../src-common/types/filter';
 import { FilterNode } from '../eq/filters';
 import { AUDIO_CONTEXT } from '../../src-common/audio-constants';
+import camelToTitle from '../../src-common/utils/camelToTitle';
 
 const ColorPicker = styled(RgbaStringColorPicker)`
   & .react-colorful__saturation-pointer {
