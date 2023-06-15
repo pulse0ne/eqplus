@@ -76,9 +76,10 @@ function Root () {
     const key = StorageKeys.THEME_STATE;
     chrome.storage.local.get(key)
       .then(res => {
-        const state = res[key] as Theme|null;
+        console.log(res);
+        const state = res[key] as { currentTheme: Theme }|null;
         if (state) {
-          setTheme(state);
+          setTheme(state.currentTheme);
         }
       })
   }, []);

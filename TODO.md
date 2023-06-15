@@ -10,7 +10,7 @@
 - [ ] Popup may also have an EQ display...not sure
 - [ ] Pre-configured profiles for using a preset for a particular domain?
 - [ ] Add more stuff to About page
-- [ ] Get rid of Settings page in favor of import/export on Themes and Presets pages
+- [x] Get rid of Settings page in favor of import/export on Themes and Presets pages
 - [ ] AnalyserNode?
 - [ ] Popup UI
 - [ ] Explore wheel sens normalization
