@@ -69,16 +69,16 @@ chrome.runtime.onMessage.addListener(msg => {
   }
 });
 
-function Root () {
+function App () {
   const [ theme, setTheme ] = useState<DefaultTheme>(DEFAULT_THEMES[0]);
 
   useEffect(() => {
     const key = StorageKeys.THEME_STATE;
     chrome.storage.local.get(key)
       .then(res => {
-        const state = res[key] as Theme|null;
-        if (state) {
-          setTheme(state);
+        const state = res[key] as { currentTheme: Theme }|null;
+        if (state && state.currentTheme) {
+          setTheme(state.currentTheme);
         }
       })
   }, []);
@@ -119,4 +119,4 @@ function Root () {
   );
 }
 
-export default Root;
+export default App;
