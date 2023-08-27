@@ -1,6 +1,6 @@
 import { FilterParams } from './filter';
 
-export type EqualizerState = {
+export type EQState = {
   filters: FilterParams[],
   preamp: number
 };

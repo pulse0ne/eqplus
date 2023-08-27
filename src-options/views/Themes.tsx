@@ -5,16 +5,16 @@ import Dial from '../../src-common-ui/Dial';
 import Checkbox from '../../src-common-ui/Checkbox';
 import { DEFAULT_THEMES } from '../../src-common/defaults';
 import ViewWrapper from './ViewWrapper';
-import Choose, { ChooseOption } from '../../src-common-ui/Choose';
 import { HBox, VBox, VSpacer } from '../../src-common-ui/FlexBox';
-import { Button, ToggleButton } from '../../src-common-ui/Button';
-import camelToTitle from '../utils/camelToTitle';
+import { Button } from '../../src-common-ui/Button';
 import { CanvasPlot } from '../../src-common-ui/CanvasPlot';
 import { Theme } from '../../src-common/types/theme';
 import { Color } from '../../src-common/types/color';
 import { IFilter } from '../../src-common/types/filter';
 import { FilterNode } from '../eq/filters';
 import { AUDIO_CONTEXT } from '../../src-common/audio-constants';
+import camelToTitle from '../../src-common/utils/camelToTitle';
+import { NativeSelect } from '../../src-common-ui/Choose';
 
 const ColorPicker = styled(RgbaStringColorPicker)`
   & .react-colorful__saturation-pointer {
@@ -32,7 +32,8 @@ const ColorPicker = styled(RgbaStringColorPicker)`
 
 const WidgetWrapper = styled(HBox)`
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
+  margin-right: 16px;
 `;
 
 const SectionWrapper = styled(VBox)`
@@ -65,18 +66,18 @@ const Swatch = styled.div<{colorKey: ThemeColorKey}>`
   background-color: ${({ theme, colorKey }) => theme.colors[colorKey]};
 `;
 
-const FancySelect = styled.select`
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  padding: 0.3em;
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.colors.background};
-  color: ${({ theme }) => theme.colors.textPrimary};
-  min-width: 100px;
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.accentPrimary};
-    outline-offset: -2px;
-  }
-`;
+// const FancySelect = styled.select`
+//   border: 1px solid ${({ theme }) => theme.colors.border};
+//   padding: 0.3em;
+//   border-radius: 4px;
+//   background-color: ${({ theme }) => theme.colors.background};
+//   color: ${({ theme }) => theme.colors.textPrimary};
+//   min-width: 100px;
+//   &:focus {
+//     outline: 2px solid ${({ theme }) => theme.colors.accentPrimary};
+//     outline-offset: -2px;
+//   }
+// `;
 
 const FancyLabel = styled.span`
   font-weight: bold;
@@ -90,17 +91,17 @@ function LabeledSelect ({ label, ...rest }: LabeledSelectProps) {
   return (
     <VBox>
       <FancyLabel>{label}</FancyLabel>
-      <FancySelect {...rest} />
+      <NativeSelect {...rest} />
     </VBox>
   );
 }
 
-const chooseOptions: ChooseOption[] = [
-  { value: 'a', icon: 'eqplus favorite'},
-  { value: 'b', icon: 'eqplus music_note' },
-  { value: 'c', icon: 'eqplus headset' },
-  { value: 'd', icon: 'eqplus speaker' }
-];
+// const chooseOptions: ChooseOption[] = [
+//   { value: 'a', icon: 'eqplus favorite'},
+//   { value: 'b', icon: 'eqplus music_note' },
+//   { value: 'c', icon: 'eqplus headset' },
+//   { value: 'd', icon: 'eqplus speaker' }
+// ];
 
 const exampleFilters: IFilter[] = [
   { id: '0', frequency: 128, q: 1.0, type: 'peaking' as BiquadFilterType, gain: 5 },
@@ -126,7 +127,7 @@ function Themes({
   const [ disabled, setDisabled ] = useState(false);
   const [ dialVal, setDialVal ] = useState(25);
   const [ checkboxValue, setCheckboxValue ] = useState(true);
-  const [ chooseValue, setChooseValue ] = useState(chooseOptions[0]);
+  // const [ chooseValue, setChooseValue ] = useState(chooseOptions[0]);
   const [ swatchHelp, setSwatchHelp ] = useState('');
 
   const handleThemeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -209,13 +210,18 @@ function Themes({
             <ColorBlurb><b>Colors:</b> Accent Primary, Background, Border, Disabled, Text Primary</ColorBlurb>
             <VSpacer size={2} />
             <HBox>
-              <Choose
+              {/* <Choose
                 direction="up"
                 options={chooseOptions}
                 selected={chooseValue}
                 onSelected={setChooseValue}
                 disabled={disabled}
-              />
+              /> */}
+              <NativeSelect>
+                <option>Option 1</option>
+                <option>Option 2</option>
+                <option>Option 3</option>
+              </NativeSelect>
             </HBox>
           </SectionWrapper>
 
@@ -269,10 +275,9 @@ function Themes({
             ))}
           </HBox>
           
-          <VSpacer size={1} />
+          <VSpacer size={1} style={{ margin: '0 4px' }} />
 
           {currentTheme.colors[currentKey as ThemeColorKey]} {/* TODO: color input */}
-          <ToggleButton active={disabled} onClick={() => setDisabled(ov => !ov)}>Toggle Disabled</ToggleButton>
           <Button onClick={() => console.log(JSON.stringify(currentTheme))}>Log</Button>
         </ControlsContainer>
 

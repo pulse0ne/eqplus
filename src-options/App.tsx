@@ -3,17 +3,18 @@ import { HashRouter, Route, Routes } from 'react-router-dom';
 import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 import { DEFAULT_THEMES } from '../src-common/defaults';
 import Themes from './views/Themes';
-import GlobalStyles from './utils/globalStyles';
 import { HBox, VBox } from '../src-common-ui/FlexBox';
 import NavItem from '../src-common-ui/NavItem';
 import Logo from '../src-common-ui/Logo';
 import About from './views/About';
 import EqualizerControls from './views/EqualizerControls';
 import Presets from './views/Presets';
-// import equalizer from './eq/equalizer';
+import equalizer from './eq/equalizer';
 import debounce from '../src-common/debounce';
 import { Theme } from '../src-common/types/theme';
 import { StorageKeys } from '../src-common/storage-keys';
+import GlobalStyles from '../src-common-ui/globalStyles';
+import { save } from '../src-common/utils/storageUtils';
 
 const tabCapture: () => Promise<MediaStream> = () => {
   return new Promise((resolve, reject) => {
@@ -24,7 +25,7 @@ const tabCapture: () => Promise<MediaStream> = () => {
 };
 
 const saveThemeDebounced = debounce((theme: Theme) => {
-  chrome.storage.local.set({ [StorageKeys.THEME_STATE]: { currentTheme: theme } });
+  save(StorageKeys.THEME_STATE, { currentTheme: theme });
 }, 500);
 
 const PageWrapper = styled(VBox)`
@@ -61,24 +62,23 @@ chrome.runtime.onMessage.addListener(msg => {
   if (msg.type === 'startCapture') {
     console.log('start capture');
     tabCapture().then(stream => {
-      // equalizer.connect([], stream);
+      equalizer.connectToStream(stream);
     });
   } else if (msg.type === 'stopCapture') {
     console.log('stop capture');
-    // equalizer.destroy();
+    equalizer.destroy();
   }
 });
 
-function Root () {
+function App () {
   const [ theme, setTheme ] = useState<DefaultTheme>(DEFAULT_THEMES[0]);
 
   useEffect(() => {
     const key = StorageKeys.THEME_STATE;
     chrome.storage.local.get(key)
       .then(res => {
-        console.log(res);
         const state = res[key] as { currentTheme: Theme }|null;
-        if (state) {
+        if (state && state.currentTheme) {
           setTheme(state.currentTheme);
         }
       })
@@ -120,4 +120,4 @@ function Root () {
   );
 }
 
-export default Root;
+export default App;

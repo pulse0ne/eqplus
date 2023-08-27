@@ -1,4 +1,4 @@
-import { EqualizerState } from './types/equalizer';
+import { EQState } from './types/equalizer';
 import { FilterParams } from "./types/filter";
 import { Preset } from "./types/preset";
 import { Theme } from "./types/theme";
@@ -67,7 +67,7 @@ const DEFAULT_THEMES: Theme[] = [
   }
 ];
 
-const DEFAULT_EQ_STATE: EqualizerState = {
+const DEFAULT_STATE: EQState = {
   filters: DEFAULT_FILTERS,
   preamp: 0.0
 };
@@ -75,6 +75,6 @@ const DEFAULT_EQ_STATE: EqualizerState = {
 export {
   DEFAULT_FILTERS,
   DEFAULT_PRESETS,
-  DEFAULT_EQ_STATE,
+  DEFAULT_STATE,
   DEFAULT_THEMES
 }

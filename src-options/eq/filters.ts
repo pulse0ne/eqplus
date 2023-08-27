@@ -13,12 +13,10 @@ const FILTER_PARAM_MAPPING: Record<BiquadFilterType, { usesGain: boolean, usesQ:
 
 export class FilterNode implements IFilter {
   id: string;
-  private context: AudioContext;
   private biquad: BiquadFilterNode;
 
   constructor(id: string, context: AudioContext) {
     this.id = id;
-    this.context = context;
     this.biquad = context.createBiquadFilter();
   }
   
@@ -85,7 +83,15 @@ export class FilterNode implements IFilter {
     return this.biquad;
   }
 
+  connect(node: AudioNode) {
+    this.biquad.connect(node);
+  }
+
+  disconnect() {
+    this.biquad.disconnect();
+  }
+
   private setAudioParam(key: 'frequency'|'Q'|'gain', value: number) {
-    this.biquad[key].setValueAtTime(value, this.context.currentTime);
+    this.biquad[key].value = value;
   }
 }
