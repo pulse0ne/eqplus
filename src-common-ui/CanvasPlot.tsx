@@ -4,12 +4,14 @@ import { AUDIO_CONTEXT, NYQUIST } from '../src-common/audio-constants';
 import { FREQ_START } from '../src-common/audio-constants';
 import { IFilter } from '../src-common/types/filter';
 import { Theme } from '../src-common/types/theme';
+import { darken } from 'color2k';
 
 const TWO_PI = 2.0 * Math.PI;
-const HANDLE_RADIUS = 5;
+const HANDLE_RADIUS = 4.5;
+const SELECTED_HANDLE_RADIUS = 1.25 * HANDLE_RADIUS;
 const HANDLE_CIRCUMFERENCE = 2 * HANDLE_RADIUS;
 const DB_SCALE = 20.0;
-const DPR = window.devicePixelRatio;
+const DPR = () => window.devicePixelRatio;
 
 const FREQ_LINES = {
   '100': 100,
@@ -76,8 +78,6 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     dragging: false
   };
 
-  dpr = window.devicePixelRatio;
-
   gridRef = createRef<HTMLCanvasElement>();
   graphRef = createRef<HTMLCanvasElement>();
 
@@ -100,8 +100,8 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     const grid = this.gridRef.current!;
     const graph = this.graphRef.current!;
 
-    grid.getContext('2d')?.scale(DPR, DPR);
-    graph.getContext('2d')?.scale(DPR, DPR);
+    grid.getContext('2d')?.scale(DPR(), DPR());
+    graph.getContext('2d')?.scale(DPR(), DPR());
 
     this.setupCanvasDpr();
     this.syncBiquads(this.props.filters);
@@ -199,7 +199,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
       if (activeNodeIndex !== null) {
         const active = filters[activeNodeIndex];
         const m = this.graphRef.current!.width / Math.log10(NYQUIST / FREQ_START);
-        const [ adjustedX, adjustedY ] = [ offsetX * DPR, offsetY * DPR ];
+        const [ adjustedX, adjustedY ] = [ offsetX * DPR(), offsetY * DPR() ];
         const frequency = Math.pow(10, adjustedX / m) * FREQ_START;
         if (active.usesGain()) {
           onFilterChanged?.({ frequency, gain: DB_SCALE * (((-2 * adjustedY) / this.graphRef.current!.height) + 1) });
@@ -222,7 +222,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
 
   handleDoubleClick(e: React.MouseEvent) {
     e.preventDefault();
-    const adjustedX = e.nativeEvent.offsetX * DPR;
+    const adjustedX = e.nativeEvent.offsetX * DPR();
     const m = this.graphRef.current!.width / Math.log10(NYQUIST / FREQ_START);
     const frequency = Math.pow(10, adjustedX / m) * FREQ_START;
     this.props.onFilterAdded?.(frequency);
@@ -342,17 +342,24 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
       const buffer = 0;
       const x = Math.floor(mVal * Math.log10(f.getFrequency() / FREQ_START));
       const y = (f.usesGain() ? Math.min(Math.max(10, yVals[x]), height + buffer) : height * 0.5) - buffer;
+      const active = ix === activeNodeIndex;
 
-      graphCtx.strokeStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
+      graphCtx.strokeStyle = disabled ? theme.colors.disabled : (active ? theme.colors.accentPrimary : darken(theme.colors.accentPrimary, 0.1));
       graphCtx.lineWidth = 3;
       graphCtx.beginPath();
-      graphCtx.arc(x, y, HANDLE_RADIUS, 0, TWO_PI);
+      const r = active ? SELECTED_HANDLE_RADIUS : HANDLE_RADIUS;
+      graphCtx.arc(x, y, r, 0, TWO_PI);
       graphCtx.stroke();
 
-      if (ix === activeNodeIndex) {
+      if (active) {
         graphCtx.fillStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
         graphCtx.fill();
+        graphCtx.beginPath();
+        graphCtx.arc(x, y, r, 0, TWO_PI);
+        graphCtx.filter = active ? 'blur(16px)' : 'none';
+        graphCtx.fill();
         graphCtx.fillStyle = theme.colors.background;
+        graphCtx.filter = 'none';
       } else {
         graphCtx.fillStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
       }
@@ -376,14 +383,14 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
         <CanvasWrapper
           id="grid"
           ref={this.gridRef}
-          width={`${DPR * width}px`}
-          height={`${DPR * height}px`}
+          width={`${DPR() * width}px`}
+          height={`${DPR() * height}px`}
         />
         <CanvasWrapper
           id="graph"
           ref={this.graphRef}
-          width={`${DPR * width}px`}
-          height={`${DPR * height}px`}
+          width={`${DPR() * width}px`}
+          height={`${DPR() * height}px`}
           onMouseDown={this.handleMouseDown}
           onMouseUp={this.handleMouseUp}
           onMouseMove={this.handleMouseMove}

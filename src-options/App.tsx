@@ -9,11 +9,12 @@ import Logo from '../src-common-ui/Logo';
 import About from './views/About';
 import EqualizerControls from './views/EqualizerControls';
 import Presets from './views/Presets';
-// import equalizer from './eq/equalizer';
+import equalizer from './eq/equalizer';
 import debounce from '../src-common/debounce';
 import { Theme } from '../src-common/types/theme';
 import { StorageKeys } from '../src-common/storage-keys';
 import GlobalStyles from '../src-common-ui/globalStyles';
+import { save } from '../src-common/utils/storageUtils';
 
 const tabCapture: () => Promise<MediaStream> = () => {
   return new Promise((resolve, reject) => {
@@ -24,7 +25,7 @@ const tabCapture: () => Promise<MediaStream> = () => {
 };
 
 const saveThemeDebounced = debounce((theme: Theme) => {
-  chrome.storage.local.set({ [StorageKeys.THEME_STATE]: { currentTheme: theme } });
+  save(StorageKeys.THEME_STATE, { currentTheme: theme });
 }, 500);
 
 const PageWrapper = styled(VBox)`
@@ -61,11 +62,11 @@ chrome.runtime.onMessage.addListener(msg => {
   if (msg.type === 'startCapture') {
     console.log('start capture');
     tabCapture().then(stream => {
-      // equalizer.connect([], stream);
+      equalizer.connectToStream(stream);
     });
   } else if (msg.type === 'stopCapture') {
     console.log('stop capture');
-    // equalizer.destroy();
+    equalizer.destroy();
   }
 });
 

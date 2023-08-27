@@ -1,34 +1,37 @@
+import { DEFAULT_STATE } from '../../src-common/defaults';
+import { StorageKeys } from '../../src-common/storage-keys';
 import { FilterParams, IFilter } from '../../src-common/types/filter';
 import { toScalar, toDecibel } from '../../src-common/utils/scalarDecibelConverter';
+import { load } from '../../src-common/utils/storageUtils';
 import { FilterNode } from './filters';
+import contextHolder from './contextHolder';
 
 export class Equalizer {
   private filters: FilterNode[];
-  private context: AudioContext;
   private source: MediaStreamAudioSourceNode|null;
   private preamp: GainNode;
   private bypassed: boolean;
 
-  constructor(context: AudioContext) {
-    this.context = context;
+  constructor() {
     this.filters = [];
     this.source = null;
-    this.preamp = this.context.createGain();
+    this.preamp = contextHolder.getContext().createGain();
     this.bypassed = false;
   }
 
   connectToStream(stream: MediaStream) {
-    this.source = this.context.createMediaStreamSource(stream);
+    this.source = contextHolder.getContext().createMediaStreamSource(stream);
     this.source.connect(this.preamp);
     if (this.filters.length) {
       this.preamp.connect(this.filters[0].getBiquad());
     } else {
-      this.preamp.connect(this.context.destination);
+      this.preamp.connect(contextHolder.getContext().destination);
     }
   }
 
+  // TODO: maybe we actually need to reset instead of destroy?
   destroy() {
-    this.context.close();
+    contextHolder.reset();
     this.source = null;
     this.filters = [];
   }
@@ -36,7 +39,7 @@ export class Equalizer {
   bypass(enabled: boolean) {
     this.source?.disconnect();
     if (enabled) {
-      this.source?.connect(this.context.destination);
+      this.source?.connect(contextHolder.getContext().destination);
     } else {
       this.source?.connect(this.preamp);
     }
@@ -60,7 +63,7 @@ export class Equalizer {
   }
 
   addFilter(params: FilterParams): IFilter {
-    const filter = FilterNode.fromFilterParams(params, this.context);
+    const filter = FilterNode.fromFilterParams(params, contextHolder.getContext());
     this.filters.push(filter);
     if (this.filters.length === 1) {
       this.preamp.disconnect();
@@ -70,7 +73,7 @@ export class Equalizer {
       lastFilter.disconnect();
       lastFilter.connect(filter.getBiquad());
     }
-    filter.connect(this.context.destination);
+    filter.connect(contextHolder.getContext().destination);
     // TODO: save to storage
     return filter;
   }
@@ -83,14 +86,14 @@ export class Equalizer {
       if (this.filters.length) {
         this.preamp.connect(this.filters[0].getBiquad());
       } else {
-        this.preamp.connect(this.context.destination);
+        this.preamp.connect(contextHolder.getContext().destination);
       }
     } else {
       this.filters[index - 1].disconnect();
       this.filters[index].disconnect();
       this.filters.splice(index, 1);
       if (index === this.filters.length) {
-        this.filters[index - 1].connect(this.context. destination);
+        this.filters[index - 1].connect(contextHolder.getContext(). destination);
       } else {
         this.filters[index - 1].connect(this.filters[index].getBiquad());
       }
@@ -114,9 +117,20 @@ export class Equalizer {
     return this.bypassed;
   }
 
-  static fromParams(params: FilterParams[], context: AudioContext): Equalizer {
-    const eq = new Equalizer(context);
+  load() {
+    load(StorageKeys.EQ_STATE, DEFAULT_STATE).then(state => {
+      this.updatePreamp(state.preamp);
+      state.filters.forEach(f => this.addFilter(f));
+    })
+  }
+
+  static fromParams(params: FilterParams[]): Equalizer {
+    const eq = new Equalizer();
     params.forEach(p => eq.addFilter(p));
     return eq;
   }
 }
+
+const eq = new Equalizer();
+eq.load();
+export default eq;

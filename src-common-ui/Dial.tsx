@@ -14,7 +14,6 @@ const DialGrip = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
-  transition: all ${({ theme }) => theme.misc.transition};
 `;
 
 const DialGripTick = styled.div<{disabled: boolean}>`
