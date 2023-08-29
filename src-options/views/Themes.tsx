@@ -66,19 +66,6 @@ const Swatch = styled.div<{colorKey: ThemeColorKey}>`
   background-color: ${({ theme, colorKey }) => theme.colors[colorKey]};
 `;
 
-// const FancySelect = styled.select`
-//   border: 1px solid ${({ theme }) => theme.colors.border};
-//   padding: 0.3em;
-//   border-radius: 4px;
-//   background-color: ${({ theme }) => theme.colors.background};
-//   color: ${({ theme }) => theme.colors.textPrimary};
-//   min-width: 100px;
-//   &:focus {
-//     outline: 2px solid ${({ theme }) => theme.colors.accentPrimary};
-//     outline-offset: -2px;
-//   }
-// `;
-
 const FancyLabel = styled.span`
   font-weight: bold;
   font-size: 9px;
@@ -95,13 +82,6 @@ function LabeledSelect ({ label, ...rest }: LabeledSelectProps) {
     </VBox>
   );
 }
-
-// const chooseOptions: ChooseOption[] = [
-//   { value: 'a', icon: 'eqplus favorite'},
-//   { value: 'b', icon: 'eqplus music_note' },
-//   { value: 'c', icon: 'eqplus headset' },
-//   { value: 'd', icon: 'eqplus speaker' }
-// ];
 
 const exampleFilters: IFilter[] = [
   { id: '0', frequency: 128, q: 1.0, type: 'peaking' as BiquadFilterType, gain: 5 },
@@ -210,13 +190,6 @@ function Themes({
             <ColorBlurb><b>Colors:</b> Accent Primary, Background, Border, Disabled, Text Primary</ColorBlurb>
             <VSpacer size={2} />
             <HBox>
-              {/* <Choose
-                direction="up"
-                options={chooseOptions}
-                selected={chooseValue}
-                onSelected={setChooseValue}
-                disabled={disabled}
-              /> */}
               <NativeSelect>
                 <option>Option 1</option>
                 <option>Option 2</option>

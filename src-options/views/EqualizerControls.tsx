@@ -16,10 +16,12 @@ import { EQState } from '../../src-common/types/equalizer';
 import { StorageKeys } from '../../src-common/storage-keys';
 import { load, save } from '../../src-common/utils/storageUtils';
 import { DEFAULT_STATE } from '../../src-common/defaults';
+import isDefined from '../../src-common/utils/isDefined';
 
 const DIAL_SIZE = 75;
 
 const frequencyToValue = (value: number) => (Math.log10(value / NYQUIST) / Math.log10(NYQUIST / FREQ_START)) + 1;
+const valueToFrequency = (value: number) => Math.pow(10, (Math.log10(NYQUIST / FREQ_START) * (value - 1)) + Math.log10(NYQUIST));
 
 const saveStateDebounced = debounce((state: EQState) => {
   save(StorageKeys.EQ_STATE, state);
@@ -45,22 +47,25 @@ function EqualizerControls () {
   const [ filters, setFilters ] = useState<FilterParams[]>([]);
   const [ preampValue, setPreampValue ] = useState<number>(1.0);
   const [ selectedIndex, setSelectedIndex ] = useState<number|null>(null);
-  const [ currentFreq, setCurrentFreq ] = useState(FREQ_START);
-  const [ currentGain, setCurrentGain ] = useState(0.0);
-  const [ currentParams, setCurrentParams ] = useState(DEFAULT_PARAMS);
+  // const [ currentFreq, setCurrentFreq ] = useState(FREQ_START);
+  // const [ currentGain, setCurrentGain ] = useState(0.0);
+  const [ currentParams, setCurrentParams ] = useState<FilterParameters>(DEFAULT_PARAMS);
 
   useEffect(() => {
     load(StorageKeys.EQ_STATE, DEFAULT_STATE).then(state => {
       setFilters(state.filters);
       setPreampValue(state.preamp);
+      if (state.filters.length) {
+        setSelectedIndex(0);
+      }
     });
   }, []);
 
   useEffect(() => {
     if (selectedIndex === null) {
-      setCurrentFreq(FREQ_START);
+      setCurrentParams(DEFAULT_PARAMS);
     } else {
-      setCurrentFreq(filters[selectedIndex].frequency);
+      setCurrentParams(filters[selectedIndex]);
     }
   }, [filters, selectedIndex]);
 
@@ -69,12 +74,11 @@ function EqualizerControls () {
   }, []);
 
   const handleFilterChanged = useCallback(({ frequency, gain, q }: FilterChanges) => {
-    // console.log(selectedIndex, frequency, gain, q);
     if (selectedIndex === null) return;
     const filter = filters[selectedIndex];
-    if (frequency) filter.frequency = frequency;
-    if (gain) filter.gain = gain;
-    if (q) filter.q = q;
+    if (isDefined(frequency)) filter.frequency = frequency!!;
+    if (isDefined(gain)) filter.gain = gain!!;
+    if (isDefined(q)) filter.q = q!!;
     setFilters([...filters]);
     equalizer.updateFilter(selectedIndex, filter);
     saveStateDebounced({ filters, preampValue });
@@ -116,10 +120,14 @@ function EqualizerControls () {
     handleSelectedFilterChanged(null);
   }, [selectedIndex, filters, preampValue]);
 
-  const handleGainChanged = useCallback((newGain: number) => {
-    console.log(newGain);
-    setCurrentGain(newGain)
-  }, []);
+  const handleGainChanged = useCallback((gain: number) => {
+    handleFilterChanged({ gain });
+  }, [handleFilterChanged]);
+  
+  const handleFreqChanged = useCallback((freq: number) => {
+    console.log(valueToFrequency(freq));
+    handleFilterChanged({ frequency: valueToFrequency(freq) });
+  }, [handleFilterChanged]);
 
   return (
     <ViewWrapper>
@@ -137,15 +145,16 @@ function EqualizerControls () {
             <HBox alignItems="center" justifyContent="space-around">
               <Dial
                 label="Freq."
-                value={frequencyToValue(currentFreq)}
+                value={frequencyToValue(currentParams.frequency)}
                 min={0}
                 max={1}
                 size={DIAL_SIZE}
+                onChange={handleFreqChanged}
               />
               <Dial
                 label="Gain"
                 onZero={() => handleGainChanged(0.0)}
-                value={currentGain}
+                value={currentParams.gain}
                 min={-20}
                 max={20}
                 size={DIAL_SIZE}
@@ -154,7 +163,7 @@ function EqualizerControls () {
               <Dial
                 label="Q"
                 onZero={() => console.log('zero')}
-                value={1.0}
+                value={currentParams.q}
                 min={0.1}
                 max={10}
                 size={DIAL_SIZE}
@@ -163,7 +172,7 @@ function EqualizerControls () {
               <Dial
                 label="Preamp"
                 onZero={() => console.log('zero')}
-                value={0}
+                value={preampValue}
                 min={-20}
                 max={20}
                 size={DIAL_SIZE}
@@ -180,7 +189,7 @@ function EqualizerControls () {
         <HSpacer size={2} />
         <Button onClick={() => handleRemoveFilter()} disabled={selectedIndex === null}>Remove Filter</Button>
       </HBox>
-      {currentFreq.toFixed(0)}
+      {currentParams.frequency.toFixed(0)}
     </ViewWrapper>
   );
 }

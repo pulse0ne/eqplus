@@ -66,7 +66,7 @@ chrome.runtime.onMessage.addListener(msg => {
     });
   } else if (msg.type === 'stopCapture') {
     console.log('stop capture');
-    equalizer.destroy();
+    equalizer.disconnectFromStream();
   }
 });
 
