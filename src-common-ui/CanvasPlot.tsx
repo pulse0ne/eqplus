@@ -37,7 +37,8 @@ const CanvasWrapper = styled.canvas`
 export type FilterChanges = {
   frequency?: number,
   gain?: number,
-  q?: number
+  q?: number,
+  type?: BiquadFilterType
 };
 
 type Point2D = { x: number, y: number };
