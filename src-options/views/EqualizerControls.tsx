@@ -18,11 +18,16 @@ import { load, save } from '../../src-common/utils/storageUtils';
 import { DEFAULT_STATE } from '../../src-common/defaults';
 import isDefined from '../../src-common/utils/isDefined';
 import { NativeSelect } from '../../src-common-ui/Choose';
+import NumberEditLabel from '../../src-common-ui/NumberEditLabel';
 
 const DIAL_SIZE = 75;
 
 const frequencyToValue = (value: number) => (Math.log10(value / NYQUIST) / Math.log10(NYQUIST / FREQ_START)) + 1;
 const valueToFrequency = (value: number) => Math.pow(10, (Math.log10(NYQUIST / FREQ_START) * (value - 1)) + Math.log10(NYQUIST));
+const truncn = (value: number, dec: number) => {
+  const p = Math.pow(10, dec);
+  return Math.round(value + Number.EPSILON * p) / p;
+};
 
 const saveStateDebounced = debounce((state: EQState) => {
   save(StorageKeys.EQ_STATE, state);
@@ -49,12 +54,11 @@ function EqualizerControls () {
   const [ selectedIndex, setSelectedIndex ] = useState<number|null>(null);
   const [ currentParams, setCurrentParams ] = useState<FilterParameters>(DEFAULT_PARAMS);
   const [ preampValue, setPreampValue ] = useState<number>(1.0);
-  const [ filterType, setFilterType ] = useState<BiquadFilterType>('peaking');
 
   useEffect(() => {
     load(StorageKeys.EQ_STATE, DEFAULT_STATE).then(state => {
       setFilters(state.filters);
-      setPreampValue(state.preamp);
+      setPreampValue(state.preamp ?? 0);
       if (state.filters.length) {
         setSelectedIndex(0);
       }
@@ -82,7 +86,7 @@ function EqualizerControls () {
     if (isDefined(type)) filter.type = type!!;
     setFilters([...filters]);
     equalizer.updateFilter(selectedIndex, filter);
-    saveStateDebounced({ filters, preampValue });
+    saveStateDebounced({ filters, preamp: preampValue });
   }, [filters, selectedIndex, preampValue]);
 
   const handleAddFilter = useCallback((freq?: number) => {
@@ -108,7 +112,7 @@ function EqualizerControls () {
     setFilters(newFilters);
     handleSelectedFilterChanged(newFilters.length - 1);
     equalizer.addFilter(newFilter);
-    saveStateDebounced({ filters, preampValue });
+    saveStateDebounced({ filters, preamp: preampValue });
   }, [filters, preampValue]);
 
   const handleRemoveFilter = useCallback(() => {
@@ -117,9 +121,13 @@ function EqualizerControls () {
     newFilters.splice(selectedIndex, 1);
     setFilters(newFilters);
     equalizer.removeFilter(selectedIndex);
-    saveStateDebounced({ filters, preampValue });
+    saveStateDebounced({ filters, preamp: preampValue });
     if (selectedIndex > 0) {
       handleSelectedFilterChanged(selectedIndex - 1);
+    } else if (newFilters.length) {
+      handleSelectedFilterChanged(0);
+    } else {
+      handleSelectedFilterChanged(null);
     }
   }, [selectedIndex, filters, preampValue]);
 
@@ -128,7 +136,7 @@ function EqualizerControls () {
   }, [handleFilterChanged]);
   
   const handleFreqChanged = useCallback((freq: number) => {
-    handleFilterChanged({ frequency: valueToFrequency(freq) });
+    handleFilterChanged({ frequency: Math.trunc(valueToFrequency(freq)) });
   }, [handleFilterChanged]);
 
   const handleQChanged = useCallback((q: number) => {
@@ -142,7 +150,8 @@ function EqualizerControls () {
   const handlePreampChanged = useCallback((preamp: number) => {
     equalizer.updatePreamp(preamp);
     setPreampValue(preamp);
-  }, []);
+    saveStateDebounced({ filters, preamp: preamp });
+  }, [filters, preampValue]);
 
   return (
     <ViewWrapper>
@@ -157,53 +166,100 @@ function EqualizerControls () {
             onFilterAdded={handleAddFilter}
           />
           <Surface>
-            <HBox alignItems="center" justifyContent="space-around">
-              <NativeSelect
-                value={currentParams.type}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterTypeChanged(e.target.value as BiquadFilterType)}
-              >
-                <option value="peaking">Peaking</option>
-                <option value="lowpass">Lowpass</option>
-                <option value="highpass">Highpass</option>
-                <option value="lowshelf">Low Shelf</option>
-                <option value="highshelf">High Shelf</option>
-                <option value="notch">Notch</option>
-              </NativeSelect>
-              <Dial
-                label="Freq."
-                value={frequencyToValue(currentParams.frequency)}
-                min={0}
-                max={1}
-                size={DIAL_SIZE}
-                onChange={handleFreqChanged}
-              />
-              <Dial
-                label="Gain"
-                onZero={() => handleGainChanged(0.0)}
-                value={currentParams.gain}
-                min={-20}
-                max={20}
-                size={DIAL_SIZE}
-                onChange={handleGainChanged}
-              />
-              <Dial
-                label="Q"
-                onZero={() => handleQChanged(1.0)}
-                value={currentParams.q}
-                min={0.1}
-                max={10}
-                size={DIAL_SIZE}
-                onChange={handleQChanged}
-              />
-              <Dial
-                label="Preamp"
-                onZero={() => handlePreampChanged(0.0)}
-                value={preampValue}
-                min={-20}
-                max={20}
-                size={DIAL_SIZE}
-                onChange={handlePreampChanged}
-              />
+            <HBox alignItems="stretch" justifyContent="space-around">
+              <VBox alignItems="center">
+                <span>Filter Type</span>
+                <HBox flexGrow={1} alignItems="center">
+                  <NativeSelect
+                    value={currentParams.type}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterTypeChanged(e.target.value as BiquadFilterType)}
+                  >
+                    <option value="peaking">Peaking</option>
+                    <option value="lowpass">Lowpass</option>
+                    <option value="highpass">Highpass</option>
+                    <option value="lowshelf">Low Shelf</option>
+                    <option value="highshelf">High Shelf</option>
+                    <option value="notch">Notch</option>
+                  </NativeSelect>
+                </HBox>
+              </VBox>
+              <VBox alignItems="center">
+                <Dial
+                  label="Freq."
+                  disabled={selectedIndex === null}
+                  value={frequencyToValue(currentParams.frequency)}
+                  min={0}
+                  max={1}
+                  size={DIAL_SIZE}
+                  onChange={handleFreqChanged}
+                />
+                <NumberEditLabel
+                  value={currentParams.frequency}
+                  min={FREQ_START}
+                  max={NYQUIST}
+                  disabled={selectedIndex === null}
+                  label={`${currentParams.frequency.toFixed(0)} Hz`}
+                  onChange={f => handleFreqChanged(frequencyToValue(f))}                  
+                />
+              </VBox>
+              <VBox alignItems="center">
+                <Dial
+                  label="Gain"
+                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
+                  onZero={() => handleGainChanged(0.0)}
+                  value={currentParams.gain}
+                  min={-20}
+                  max={20}
+                  size={DIAL_SIZE}
+                  onChange={handleGainChanged}
+                />
+                <NumberEditLabel
+                  value={truncn(currentParams.gain, 2)}
+                  min={-20}
+                  max={20}
+                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
+                  label={`${currentParams.gain.toFixed(2)} dB`}
+                  onChange={handleGainChanged}                  
+                />
+              </VBox>
+              <VBox alignItems="center">
+                <Dial
+                  label="Q"
+                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
+                  onZero={() => handleQChanged(1.0)}
+                  value={currentParams.q}
+                  min={0.1}
+                  max={10}
+                  size={DIAL_SIZE}
+                  onChange={handleQChanged}
+                />
+                <NumberEditLabel
+                  value={truncn(currentParams.q, 2)}
+                  min={0.1}
+                  max={10}
+                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
+                  label={currentParams.q.toFixed(2)}
+                  onChange={handleQChanged}                  
+                />
+              </VBox>
+              <VBox alignItems="center">
+                <Dial
+                  label="Preamp"
+                  onZero={() => handlePreampChanged(0.0)}
+                  value={preampValue}
+                  min={-20}
+                  max={20}
+                  size={DIAL_SIZE}
+                  onChange={handlePreampChanged}
+                />
+                <NumberEditLabel
+                  value={truncn(preampValue, 2)}
+                  min={-20}
+                  max={20}
+                  label={`${preampValue.toFixed(2)} dB`}
+                  onChange={handlePreampChanged}                  
+                />
+              </VBox>
             </HBox>
             
           </Surface>
@@ -215,7 +271,6 @@ function EqualizerControls () {
         <HSpacer size={2} />
         <Button onClick={() => handleRemoveFilter()} disabled={selectedIndex === null}>Remove Filter</Button>
       </HBox>
-      {currentParams.frequency.toFixed(0)}
     </ViewWrapper>
   );
 }
