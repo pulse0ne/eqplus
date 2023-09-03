@@ -155,122 +155,124 @@ function EqualizerControls () {
 
   return (
     <ViewWrapper>
-      <HBox>
-        <VBox>
-          <CanvasPlot
-            disabled={false}
-            filters={filters.map(i => FilterNode.fromFilterParams(i, AUDIO_CONTEXT))}
-            activeNodeIndex={selectedIndex}
-            onHandleSelected={handleSelectedFilterChanged}
-            onFilterChanged={handleFilterChanged}
-            onFilterAdded={handleAddFilter}
-          />
-          <Surface>
-            <HBox alignItems="stretch" justifyContent="space-around">
-              <VBox alignItems="center">
-                <span>Filter Type</span>
-                <HBox flexGrow={1} alignItems="center">
-                  <NativeSelect
-                    value={currentParams.type}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterTypeChanged(e.target.value as BiquadFilterType)}
-                  >
-                    <option value="peaking">Peaking</option>
-                    <option value="lowpass">Lowpass</option>
-                    <option value="highpass">Highpass</option>
-                    <option value="lowshelf">Low Shelf</option>
-                    <option value="highshelf">High Shelf</option>
-                    <option value="notch">Notch</option>
-                  </NativeSelect>
-                </HBox>
-              </VBox>
-              <VBox alignItems="center">
-                <Dial
-                  label="Freq."
-                  disabled={selectedIndex === null}
-                  value={frequencyToValue(currentParams.frequency)}
-                  min={0}
-                  max={1}
-                  size={DIAL_SIZE}
-                  onChange={handleFreqChanged}
-                />
-                <NumberEditLabel
-                  value={currentParams.frequency}
-                  min={FREQ_START}
-                  max={NYQUIST}
-                  disabled={selectedIndex === null}
-                  label={`${currentParams.frequency.toFixed(0)} Hz`}
-                  onChange={f => handleFreqChanged(frequencyToValue(f))}                  
-                />
-              </VBox>
-              <VBox alignItems="center">
-                <Dial
-                  label="Gain"
-                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
-                  onZero={() => handleGainChanged(0.0)}
-                  value={currentParams.gain}
-                  min={-20}
-                  max={20}
-                  size={DIAL_SIZE}
-                  onChange={handleGainChanged}
-                />
-                <NumberEditLabel
-                  value={truncn(currentParams.gain, 2)}
-                  min={-20}
-                  max={20}
-                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
-                  label={`${currentParams.gain.toFixed(2)} dB`}
-                  onChange={handleGainChanged}                  
-                />
-              </VBox>
-              <VBox alignItems="center">
-                <Dial
-                  label="Q"
-                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
-                  onZero={() => handleQChanged(1.0)}
-                  value={currentParams.q}
-                  min={0.1}
-                  max={10}
-                  size={DIAL_SIZE}
-                  onChange={handleQChanged}
-                />
-                <NumberEditLabel
-                  value={truncn(currentParams.q, 2)}
-                  min={0.1}
-                  max={10}
-                  disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
-                  label={currentParams.q.toFixed(2)}
-                  onChange={handleQChanged}                  
-                />
-              </VBox>
-              <VBox alignItems="center">
-                <Dial
-                  label="Preamp"
-                  onZero={() => handlePreampChanged(0.0)}
-                  value={preampValue}
-                  min={-20}
-                  max={20}
-                  size={DIAL_SIZE}
-                  onChange={handlePreampChanged}
-                />
-                <NumberEditLabel
-                  value={truncn(preampValue, 2)}
-                  min={-20}
-                  max={20}
-                  label={`${preampValue.toFixed(2)} dB`}
-                  onChange={handlePreampChanged}                  
-                />
-              </VBox>
-            </HBox>
-            
-          </Surface>
-        </VBox>
-      </HBox>
-      <VSpacer size={2} />
-      <HBox>
-        <Button onClick={() => handleAddFilter()}>Add Filter</Button>
-        <HSpacer size={2} />
-        <Button onClick={() => handleRemoveFilter()} disabled={selectedIndex === null}>Remove Filter</Button>
-      </HBox>
+      <VBox alignItems="center">
+        <HBox>
+          <VBox>
+            <CanvasPlot
+              disabled={false}
+              filters={filters.map(i => FilterNode.fromFilterParams(i, AUDIO_CONTEXT))}
+              activeNodeIndex={selectedIndex}
+              onHandleSelected={handleSelectedFilterChanged}
+              onFilterChanged={handleFilterChanged}
+              onFilterAdded={handleAddFilter}
+            />
+            <Surface>
+              <HBox alignItems="stretch" justifyContent="space-around">
+                <VBox alignItems="center">
+                  <span>Filter Type</span>
+                  <HBox flexGrow={1} alignItems="center">
+                    <NativeSelect
+                      value={currentParams.type}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterTypeChanged(e.target.value as BiquadFilterType)}
+                    >
+                      <option value="peaking">Peaking</option>
+                      <option value="lowpass">Lowpass</option>
+                      <option value="highpass">Highpass</option>
+                      <option value="lowshelf">Low Shelf</option>
+                      <option value="highshelf">High Shelf</option>
+                      <option value="notch">Notch</option>
+                    </NativeSelect>
+                  </HBox>
+                </VBox>
+                <VBox alignItems="center">
+                  <Dial
+                    label="Freq."
+                    disabled={selectedIndex === null}
+                    value={frequencyToValue(currentParams.frequency)}
+                    min={0}
+                    max={1}
+                    size={DIAL_SIZE}
+                    onChange={handleFreqChanged}
+                  />
+                  <NumberEditLabel
+                    value={currentParams.frequency}
+                    min={FREQ_START}
+                    max={NYQUIST}
+                    disabled={selectedIndex === null}
+                    label={`${currentParams.frequency.toFixed(0)} Hz`}
+                    onChange={f => handleFreqChanged(frequencyToValue(f))}                  
+                  />
+                </VBox>
+                <VBox alignItems="center">
+                  <Dial
+                    label="Gain"
+                    disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
+                    onZero={() => handleGainChanged(0.0)}
+                    value={currentParams.gain}
+                    min={-20}
+                    max={20}
+                    size={DIAL_SIZE}
+                    onChange={handleGainChanged}
+                  />
+                  <NumberEditLabel
+                    value={truncn(currentParams.gain, 2)}
+                    min={-20}
+                    max={20}
+                    disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
+                    label={`${currentParams.gain.toFixed(2)} dB`}
+                    onChange={handleGainChanged}                  
+                  />
+                </VBox>
+                <VBox alignItems="center">
+                  <Dial
+                    label="Q"
+                    disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
+                    onZero={() => handleQChanged(1.0)}
+                    value={currentParams.q}
+                    min={0.1}
+                    max={10}
+                    size={DIAL_SIZE}
+                    onChange={handleQChanged}
+                  />
+                  <NumberEditLabel
+                    value={truncn(currentParams.q, 2)}
+                    min={0.1}
+                    max={10}
+                    disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
+                    label={currentParams.q.toFixed(2)}
+                    onChange={handleQChanged}                  
+                  />
+                </VBox>
+                <VBox alignItems="center">
+                  <Dial
+                    label="Preamp"
+                    onZero={() => handlePreampChanged(0.0)}
+                    value={preampValue}
+                    min={-20}
+                    max={20}
+                    size={DIAL_SIZE}
+                    onChange={handlePreampChanged}
+                  />
+                  <NumberEditLabel
+                    value={truncn(preampValue, 2)}
+                    min={-20}
+                    max={20}
+                    label={`${preampValue.toFixed(2)} dB`}
+                    onChange={handlePreampChanged}                  
+                  />
+                </VBox>
+              </HBox>
+              
+            </Surface>
+          </VBox>
+        </HBox>
+        <VSpacer size={2} />
+        <HBox>
+          <Button onClick={() => handleAddFilter()}>Add Filter</Button>
+          <HSpacer size={2} />
+          <Button onClick={() => handleRemoveFilter()} disabled={selectedIndex === null}>Remove Filter</Button>
+        </HBox>
+      </VBox>
     </ViewWrapper>
   );
 }

@@ -145,7 +145,7 @@ function Themes({
 
   return (
     <ViewWrapper>
-      <p>This tool allows you to change themes, tweak them, or create your own. Examples of many of the controls and themeable widgets are provided to see what affects changes will have.</p>
+      <p>This tool allows you to change themes, tweak them, or create your own. Examples of many of the controls and themeable widgets are provided to see how changes will affect them.</p>
       <HBox>
         <WidgetWrapper>
           <SectionWrapper>
@@ -241,7 +241,7 @@ function Themes({
               <Swatch
                 key={k}
                 colorKey={k}
-                onMouseEnter={() => setSwatchHelp(`Use "${camelToTitle(k)}"`)}
+                onMouseEnter={() => setSwatchHelp(`Use "${camelToTitle(k)}" color`)}
                 onMouseLeave={() => setSwatchHelp('')}
                 onClick={() => handleSwatchClick(k)}
               />
