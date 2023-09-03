@@ -29,9 +29,8 @@ export class Equalizer {
     }
   }
 
-  // TODO: maybe we actually need to reset instead of destroy?
-  destroy() {
-    contextHolder.reset();
+  disconnectFromStream() {
+    this.source?.mediaStream.getAudioTracks()[0].stop();
     this.source = null;
     this.filters = [];
   }
@@ -53,13 +52,11 @@ export class Equalizer {
     targetFilter.setGain(gain);
     targetFilter.setQ(q);
     targetFilter.setType(type);
-    // TODO; save to storage
     return targetFilter;
   }
 
-  updatePreamp(level: number) {
+  updatePreamp(level: number = 0) {
     this.preamp.gain.value = toScalar(level);
-    // TODO: save to storage
   }
 
   addFilter(params: FilterParams): IFilter {
@@ -74,7 +71,6 @@ export class Equalizer {
       lastFilter.connect(filter.getBiquad());
     }
     filter.connect(contextHolder.getContext().destination);
-    // TODO: save to storage
     return filter;
   }
 
@@ -98,7 +94,6 @@ export class Equalizer {
         this.filters[index - 1].connect(this.filters[index].getBiquad());
       }
     }
-    // TODO: save to storage
   }
 
   getFilter(index: number): IFilter {

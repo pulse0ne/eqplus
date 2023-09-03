@@ -66,6 +66,7 @@ const handleSetEnabled = (enabled: boolean) => {
   // });
 
     chrome.storage.local.get('optionsTabId').then(res => {
+      console.log(res.optionsTabId);
       if (!res.optionsTabId) {
         chrome.tabs.create({
           pinned: true,
@@ -167,6 +168,15 @@ chrome.runtime.onMessage.addListener((msg: Message) => {
         console.error('unknown message type:', msg.type);
       }
   }
+});
+
+chrome.tabs.onRemoved.addListener(tabId => {
+  console.log(tabId);
+  chrome.storage.local.get('optionsTabId').then(res => {
+    if (tabId === res.optionsTabId) {
+      chrome.storage.local.remove('optionsTabId');
+    }
+  });
 });
 
 export {}; // IMPORTANT: keep this
