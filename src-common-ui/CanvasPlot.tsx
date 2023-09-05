@@ -2,7 +2,7 @@ import { Component, Context, ContextType, createRef } from 'react';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { AUDIO_CONTEXT, NYQUIST } from '../src-common/audio-constants';
 import { FREQ_START } from '../src-common/audio-constants';
-import { IFilter } from '../src-common/types/filter';
+import { FilterChanges, IFilter } from '../src-common/types/filter';
 import { Theme } from '../src-common/types/theme';
 import { darken } from 'color2k';
 
@@ -33,13 +33,6 @@ const CanvasWrapper = styled.canvas`
   border-top-left-radius: 8px;
   background-color: ${props => props.id === 'graph' ? 'transparent' : props.theme.colors.graphBackground};
 `;
-
-export type FilterChanges = {
-  frequency?: number,
-  gain?: number,
-  q?: number,
-  type?: BiquadFilterType
-};
 
 type Point2D = { x: number, y: number };
 

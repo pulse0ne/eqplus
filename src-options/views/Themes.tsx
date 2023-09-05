@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 import { RgbaStringColorPicker } from 'react-colorful';
-import Dial from '../../src-common-ui/Dial';
-import Checkbox from '../../src-common-ui/Checkbox';
+import { Dial } from '../../src-common-ui/Dial';
+import { Checkbox } from '../../src-common-ui/Checkbox';
 import { DEFAULT_THEMES } from '../../src-common/defaults';
-import ViewWrapper from './ViewWrapper';
+import { ViewWrapper } from './ViewWrapper';
 import { HBox, VBox, VSpacer } from '../../src-common-ui/FlexBox';
 import { Button } from '../../src-common-ui/Button';
 import { CanvasPlot } from '../../src-common-ui/CanvasPlot';

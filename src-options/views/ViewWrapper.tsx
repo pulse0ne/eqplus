@@ -12,4 +12,4 @@ function ViewWrapper ({ children }: React.PropsWithChildren) {
   );
 }
 
-export default ViewWrapper;
+export { ViewWrapper };

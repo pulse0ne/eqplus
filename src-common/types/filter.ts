@@ -26,3 +26,10 @@ export interface IFilter {
 
   toFilterParams(): FilterParams
 }
+
+export type FilterChanges = {
+  frequency?: number,
+  gain?: number,
+  q?: number,
+  type?: BiquadFilterType
+};

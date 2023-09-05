@@ -31,4 +31,4 @@ function Checkbox({
   );
 }
 
-export default Checkbox;
+export { Checkbox };

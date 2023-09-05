@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import Logo from '../../src-common-ui/Logo';
-import ViewWrapper from './ViewWrapper';
+import { Logo } from '../../src-common-ui';
+import { ViewWrapper } from './ViewWrapper';
 
 const FancyLink = styled.a`
   color: ${({ theme }) => theme.colors.accentPrimary};

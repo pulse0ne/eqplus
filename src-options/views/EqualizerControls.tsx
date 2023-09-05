@@ -1,24 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FilterChanges } from '../../src-common-ui/CanvasPlot';
-import ViewWrapper from './ViewWrapper';
-import { Button } from '../../src-common-ui/Button';
-import { CanvasPlot } from '../../src-common-ui/CanvasPlot';
-import { HBox, HSpacer, VBox, VSpacer } from '../../src-common-ui/FlexBox';
-import equalizer from '../eq/equalizer';
-import { AUDIO_CONTEXT, FREQ_START, NYQUIST } from '../../src-common/audio-constants';
-import debounce from '../../src-common/debounce';
-import Dial from '../../src-common-ui/Dial';
 import styled from 'styled-components';
-import { FilterParams } from '../../src-common/types/filter';
-import { FilterNode } from '../eq/filters';
-import uuid from '../../src-common/utils/uuid';
-import { EQState } from '../../src-common/types/equalizer';
-import { StorageKeys } from '../../src-common/storage-keys';
-import { load, save } from '../../src-common/utils/storageUtils';
+import { Button, CanvasPlot, Dial, HBox, HSpacer, NativeSelect, NumberEditLabel, VBox, VSpacer } from '../../src-common-ui';
+import { AUDIO_CONTEXT, FREQ_START, NYQUIST } from '../../src-common/audio-constants';
 import { DEFAULT_STATE } from '../../src-common/defaults';
+import { StorageKeys } from '../../src-common/storage-keys';
+import { FilterChanges, FilterParams } from '../../src-common/types/filter';
 import isDefined from '../../src-common/utils/isDefined';
-import { NativeSelect } from '../../src-common-ui/Choose';
-import NumberEditLabel from '../../src-common-ui/NumberEditLabel';
+import { load } from '../../src-common/utils/storageUtils';
+import uuid from '../../src-common/utils/uuid';
+import equalizer from '../eq/equalizer';
+import { FilterNode } from '../eq/filters';
+import { ViewWrapper } from './ViewWrapper';
 
 const DIAL_SIZE = 75;
 
@@ -29,9 +21,6 @@ const truncn = (value: number, dec: number) => {
   return Math.round(value + Number.EPSILON * p) / p;
 };
 
-const saveStateDebounced = debounce((state: EQState) => {
-  save(StorageKeys.EQ_STATE, state);
-}, 500);
 
 const Surface = styled.div`
   background-color: ${({ theme }) => theme.colors.surface};
@@ -49,11 +38,11 @@ const DEFAULT_PARAMS: FilterParameters = {
   type: 'peaking'
 };
 
-function EqualizerControls () {
-  const [ filters, setFilters ] = useState<FilterParams[]>([]);
-  const [ selectedIndex, setSelectedIndex ] = useState<number|null>(null);
-  const [ currentParams, setCurrentParams ] = useState<FilterParameters>(DEFAULT_PARAMS);
-  const [ preampValue, setPreampValue ] = useState<number>(1.0);
+function EqualizerControls() {
+  const [filters, setFilters] = useState<FilterParams[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [currentParams, setCurrentParams] = useState<FilterParameters>(DEFAULT_PARAMS);
+  const [preampValue, setPreampValue] = useState<number>(1.0);
 
   useEffect(() => {
     load(StorageKeys.EQ_STATE, DEFAULT_STATE).then(state => {
@@ -73,7 +62,7 @@ function EqualizerControls () {
     }
   }, [filters, selectedIndex]);
 
-  const handleSelectedFilterChanged = useCallback((index: number|null) => {
+  const handleSelectedFilterChanged = useCallback((index: number | null) => {
     setSelectedIndex(index);
   }, []);
 
@@ -86,7 +75,6 @@ function EqualizerControls () {
     if (isDefined(type)) filter.type = type!!;
     setFilters([...filters]);
     equalizer.updateFilter(selectedIndex, filter);
-    saveStateDebounced({ filters, preamp: preampValue });
   }, [filters, selectedIndex, preampValue]);
 
   const handleAddFilter = useCallback((freq?: number) => {
@@ -112,7 +100,6 @@ function EqualizerControls () {
     setFilters(newFilters);
     handleSelectedFilterChanged(newFilters.length - 1);
     equalizer.addFilter(newFilter);
-    saveStateDebounced({ filters, preamp: preampValue });
   }, [filters, preampValue]);
 
   const handleRemoveFilter = useCallback(() => {
@@ -121,7 +108,6 @@ function EqualizerControls () {
     newFilters.splice(selectedIndex, 1);
     setFilters(newFilters);
     equalizer.removeFilter(selectedIndex);
-    saveStateDebounced({ filters, preamp: preampValue });
     if (selectedIndex > 0) {
       handleSelectedFilterChanged(selectedIndex - 1);
     } else if (newFilters.length) {
@@ -134,7 +120,7 @@ function EqualizerControls () {
   const handleGainChanged = useCallback((gain: number) => {
     handleFilterChanged({ gain });
   }, [handleFilterChanged]);
-  
+
   const handleFreqChanged = useCallback((freq: number) => {
     handleFilterChanged({ frequency: Math.trunc(valueToFrequency(freq)) });
   }, [handleFilterChanged]);
@@ -150,7 +136,6 @@ function EqualizerControls () {
   const handlePreampChanged = useCallback((preamp: number) => {
     equalizer.updatePreamp(preamp);
     setPreampValue(preamp);
-    saveStateDebounced({ filters, preamp: preamp });
   }, [filters, preampValue]);
 
   return (
@@ -200,7 +185,7 @@ function EqualizerControls () {
                     max={NYQUIST}
                     disabled={selectedIndex === null}
                     label={`${currentParams.frequency.toFixed(0)} Hz`}
-                    onChange={f => handleFreqChanged(frequencyToValue(f))}                  
+                    onChange={f => handleFreqChanged(frequencyToValue(f))}
                   />
                 </VBox>
                 <VBox alignItems="center">
@@ -220,7 +205,7 @@ function EqualizerControls () {
                     max={20}
                     disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesGain()}
                     label={`${currentParams.gain.toFixed(2)} dB`}
-                    onChange={handleGainChanged}                  
+                    onChange={handleGainChanged}
                   />
                 </VBox>
                 <VBox alignItems="center">
@@ -240,7 +225,7 @@ function EqualizerControls () {
                     max={10}
                     disabled={selectedIndex === null || !equalizer.getFilter(selectedIndex).usesQ()}
                     label={currentParams.q.toFixed(2)}
-                    onChange={handleQChanged}                  
+                    onChange={handleQChanged}
                   />
                 </VBox>
                 <VBox alignItems="center">
@@ -258,11 +243,11 @@ function EqualizerControls () {
                     min={-20}
                     max={20}
                     label={`${preampValue.toFixed(2)} dB`}
-                    onChange={handlePreampChanged}                  
+                    onChange={handlePreampChanged}
                   />
                 </VBox>
               </HBox>
-              
+
             </Surface>
           </VBox>
         </HBox>

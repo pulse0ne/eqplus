@@ -1,10 +1,26 @@
+import debounce from '../../src-common/debounce';
 import { DEFAULT_STATE } from '../../src-common/defaults';
 import { StorageKeys } from '../../src-common/storage-keys';
+import { EQState } from '../../src-common/types/equalizer';
 import { FilterParams, IFilter } from '../../src-common/types/filter';
-import { toScalar, toDecibel } from '../../src-common/utils/scalarDecibelConverter';
-import { load } from '../../src-common/utils/storageUtils';
-import { FilterNode } from './filters';
+import { toDecibel, toScalar } from '../../src-common/utils/scalarDecibelConverter';
+import { load, save } from '../../src-common/utils/storageUtils';
 import contextHolder from './contextHolder';
+import { FilterNode } from './filters';
+
+const saveStateDebounced: (state: EQState) => void = debounce((state: EQState) => {
+  save(StorageKeys.EQ_STATE, state);
+}, 500);
+
+function filterParamsFromNode(node: FilterNode): FilterParams {
+  return {
+    id: node.id,
+    frequency: node.getFrequency(),
+    gain: node.getGain(),
+    q: node.getQ(),
+    type: node.getType()
+  };
+}
 
 export class Equalizer {
   private filters: FilterNode[];
@@ -52,11 +68,13 @@ export class Equalizer {
     targetFilter.setGain(gain);
     targetFilter.setQ(q);
     targetFilter.setType(type);
+    this.save();
     return targetFilter;
   }
 
   updatePreamp(level: number = 0) {
     this.preamp.gain.value = toScalar(level);
+    this.save();
   }
 
   addFilter(params: FilterParams): IFilter {
@@ -71,6 +89,7 @@ export class Equalizer {
       lastFilter.connect(filter.getBiquad());
     }
     filter.connect(contextHolder.getContext().destination);
+    this.save();
     return filter;
   }
 
@@ -94,6 +113,7 @@ export class Equalizer {
         this.filters[index - 1].connect(this.filters[index].getBiquad());
       }
     }
+    this.save();
   }
 
   getFilter(index: number): IFilter {
@@ -119,6 +139,10 @@ export class Equalizer {
     })
   }
 
+  save() {
+    saveStateDebounced({ filters: this.filters.map(filterParamsFromNode), preamp: this.preamp.gain.value });
+  }
+
   static fromParams(params: FilterParams[]): Equalizer {
     const eq = new Equalizer();
     params.forEach(p => eq.addFilter(p));
@@ -126,6 +150,4 @@ export class Equalizer {
   }
 }
 
-const eq = new Equalizer();
-eq.load();
-export default eq;
+export default new Equalizer();

@@ -1,6 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { HBox, HSpacer } from './FlexBox';
-import Logo from './Logo';
+import { HBox, HSpacer, Logo } from '../../src-common-ui';
 import styled, { useTheme } from 'styled-components';
 
 const HeaderWrapper = styled(HBox)`

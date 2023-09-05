@@ -5,7 +5,7 @@ type IconProps = {
   size?: number
 }
 
-export default ({
+const Logo = ({
   fill,
   size = 256
 }: IconProps) => {
@@ -28,3 +28,5 @@ export default ({
     </svg>
   )
 };
+
+export { Logo };

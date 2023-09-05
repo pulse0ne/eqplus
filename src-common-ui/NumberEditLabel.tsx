@@ -98,4 +98,4 @@ function NumberEditLabel({
   );
 }
 
-export default NumberEditLabel;
+export { NumberEditLabel };

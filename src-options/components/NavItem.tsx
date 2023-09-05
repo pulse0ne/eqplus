@@ -1,7 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
-import Icon from './Icon';
-import { HBox } from './FlexBox';
+import { HBox, Icon } from '../../src-common-ui';
 
 const RootNavLink = styled(NavLink)`
   text-decoration: none;

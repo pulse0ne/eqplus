@@ -211,4 +211,6 @@ function Dial({
   );
 }
 
-export default Dial;
+export {
+  Dial
+};
