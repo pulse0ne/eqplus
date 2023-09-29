@@ -27,7 +27,7 @@ function Checkbox({
   }, [checked, disabled, onChange]);
 
   return (
-    <CheckboxElement checked={checked} disabled={disabled} onClick={handler} />
+    <CheckboxElement checked={checked} disabled={disabled} onClick={handler} className="themed controlTrack accentPrimary disabled" />
   );
 }
 

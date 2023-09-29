@@ -1,6 +1,7 @@
+import { ButtonHTMLAttributes } from 'react';
 import styled from 'styled-components';
 
-const Button = styled.button`
+const StyledButton = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.accentPrimary};
   border-radius: 4px;
   padding: 6px 10px;
@@ -20,5 +21,7 @@ const Button = styled.button`
     cursor: pointer;
   }
 `;
+
+const Button = (props: ButtonHTMLAttributes<HTMLButtonElement>) => <StyledButton {...props} className={`themed accentSecondary accentPrimary disabled background ${props.className}`} />
 
 export { Button };

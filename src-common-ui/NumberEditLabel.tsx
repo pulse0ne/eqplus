@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-// TODO: background color -> theme
 const EditLabelInput = styled.input`
   padding: 4px 2px;
   font-size: 11px;
   font-family: inherit;
   width: 4em;
   border: none;
-  background: rgba(255, 255, 255, 0.8);
 `;
 
 const EditLabelText = styled.div`
@@ -17,6 +15,7 @@ const EditLabelText = styled.div`
   font-family: inherit;
   user-select: none;
   overflow: visible;
+  color: ${({ theme }) => theme.colors.controlLabel};
 `;
 
 type NumberEditLabelProps = {
@@ -80,7 +79,7 @@ function NumberEditLabel({
   }, [handleBlur]);
 
   return (
-    <div>
+    <div className="themed controlLabel">
       {edit ? (
         <EditLabelInput
           type="text"

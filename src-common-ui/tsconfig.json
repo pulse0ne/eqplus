@@ -17,5 +17,5 @@
     "jsx": "react-jsx",
     "types": ["chrome"]
   },
-  "include": [".", "../src-common"]
+  "include": [".", "../src-common", "../src-options/eq/filters.ts", "../src-options/globalStyles.ts"]
 }

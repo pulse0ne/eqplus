@@ -1,18 +1,15 @@
 import { Color } from './color';
 
-export type Transition = React.CSSProperties['transition'];
-
 export type Theme = {
   name: string,
+  schemaVersion: number,
   locked: boolean,
-  misc: {
-    transition: Transition
-  },
   colors: {
     accentPrimary: Color,
     accentSecondary: Color,
     background: Color,
     border: Color,
+    controlLabel: Color,
     controlTrack: Color,
     dialKnob: Color,
     disabled: Color,
@@ -21,8 +18,10 @@ export type Theme = {
     graphLine: Color,
     graphLineMarker: Color,
     graphText: Color,
+    selectBackground: Color,
+    selectBorder: Color,
+    selectText: Color,
     surface: Color,
-    textPrimary: Color,
-    textSecondary: Color
+    text: Color
   }
 };

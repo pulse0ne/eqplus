@@ -1,4 +1,4 @@
-import { useRef, useInsertionEffect, useCallback } from 'react';
+import { useCallback, useInsertionEffect, useRef } from 'react';
 
 export function useEvent(fn: Function) {
   const ref = useRef<Function|null>(null);

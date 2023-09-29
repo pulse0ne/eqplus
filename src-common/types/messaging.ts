@@ -1,9 +1,20 @@
 import { FilterParams } from './filter';
-import { Preset } from './preset';
 
-export type MessageType = 'updateFilter'|'updatePreamp'|'setEnabled'|'resetFilters'|'savePreset'|'loadPreset'|'deletePreset'|'startCapture';
+export type MessageType ='updateFilter'
+  | 'updatePreamp'
+  | 'addFilter'
+  | 'removeFilter'
+  | 'setFilters'
+  | 'startCapture'
+  | 'stopCapture';
+
+export type MessagePayload = FilterParams
+  | FilterParams[]
+  | number
+  | boolean
+  | string;
 
 export type Message = {
   type: MessageType,
-  payload?: FilterParams|number|boolean|Preset|string;
+  payload?: MessagePayload
 };

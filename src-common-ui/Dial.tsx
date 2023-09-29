@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useEvent } from '../src-common/utils/useEvent';
 import styled from 'styled-components';
+import { useEvent } from '../src-common/utils/useEvent';
 import { HBox, VBox } from './FlexBox';
 
 const DialWrapper = styled.div`
@@ -31,7 +31,7 @@ const DialSvg = styled.svg`
 
 const DialTrack = styled.path`
   stroke: ${({ theme }) => theme.colors.controlTrack};
-  transition: all ${({ theme }) => theme.misc.transition};
+  transition: all 0.3s cubic-bezier(0, 0, 0.24, 1);
 `;
 
 const DialTrackFill = styled.path<{disabled: boolean}>`
@@ -40,6 +40,12 @@ const DialTrackFill = styled.path<{disabled: boolean}>`
 
 const DialHandle = styled.circle`
   fill: ${({ theme }) => theme.colors.dialKnob};
+`;
+
+const DialLabel = styled.span`
+  color: ${({ theme }) => theme.colors.controlLabel};
+  text-align: center;
+  user-select: none;
 `;
 
 const Zeroer = styled.i<{ disabled: boolean }>`
@@ -162,12 +168,8 @@ function Dial({
     e.stopPropagation();
     const { pageX, pageY } = e;
     const scaleY = (max - min) / 128;
-    // const scaleX = (max - min) / 256;
     const deltaY = (pageY - xy.y) * scaleY;
-    // const deltaX = (pageX - xy.x) * scaleX;
     setXy({ x: pageX, y: pageY });
-    // const d = deltaY - deltaX;
-    // let nv = value - d;
     let nv = value - deltaY;
     if (nv < min) {
       nv = min;
@@ -190,14 +192,14 @@ function Dial({
   }, [disabled, onZero]);
 
   return (
-    <VBox>
-      {label && <span style={{ textAlign: 'center', userSelect: 'none' }}>{label}</span>}
+    <VBox className="themed disabled accentPrimary">
+      {label && <DialLabel className="themed controlLabel">{label}</DialLabel>}
       {onZero ? (
         <ZeroerWrapper disabled={disabled} onZero={handleZero} />
       ) : (
         <Zeroer disabled={true} className="eqplus arrow_drop_down" style={{ color: 'transparent' }} />
       )}
-      <DialWrapper style={dialStyle} onDrag={handleDrag}>
+      <DialWrapper style={dialStyle} onDrag={handleDrag} className="themed controlTrack dialKnob">
         <DialGrip style={gripStyle} onMouseDown={mouseDown} onWheel={mouseWheel}>
           <DialGripTick disabled={disabled} style={tickStyle} />
         </DialGrip>

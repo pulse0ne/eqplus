@@ -1,6 +1,69 @@
-import { FREQ_START } from '../../src-common/audio-constants';
+import JSZip from 'jszip';
 import { FilterParams } from '../../src-common/types/filter';
 import { Preset } from '../../src-common/types/preset';
+import { FREQ_START } from '../audio-constants';
+import { StorageKeys } from '../storage-keys';
+import { downloadBlob } from '../utils/downloadBlob';
+import { load, update } from '../utils/storageUtils';
+
+/** EXPORTER **/
+
+function filterToApoLine(filter: FilterParams, index: number): string {
+  const tokens = [`Filter ${index + 1}:`, 'ON'];
+  const [ fc, gain, q ] = [ filter.frequency.toFixed(0), filter.gain.toFixed(1), filter.q.toFixed(3) ];
+  switch (filter.type) {
+    case 'allpass':
+      tokens.push(`AP Fc ${fc} Hz Q ${q}`);
+      break;
+    case 'bandpass':
+      tokens.push(`BP Fc ${fc} Hz Q ${q}`);
+      break;
+    case 'highpass':
+      tokens.push(`HPQ Fc ${fc} Hz Q ${q}`);
+      break;
+    case 'highshelf':
+      tokens.push(`HSC Fc ${fc} Hz Gain ${gain} dB Q ${q}`);
+      break;
+    case 'lowpass':
+      tokens.push(`LPQ Fc ${fc} Hz Q ${q}`);
+      break;
+    case 'lowshelf':
+      tokens.push(`LSC Fc ${fc} Hz Gain ${gain} dB Q ${q}`);
+      break;
+    case 'notch':
+      tokens.push(`NO Fc ${fc} Hz Q ${q}`);
+      break;
+    case 'peaking':
+      tokens.push(`PK Fc ${fc} Hz Gain ${gain} dB Q ${q}`);
+      break;
+  }
+  return tokens.join(' ');
+}
+
+function exportPresets() {
+  const version = chrome.runtime.getManifest().version;
+  const date = new Date().toISOString();
+  load<Preset[]>(StorageKeys.PRESETS, []).then(presets => {
+    const zip = new JSZip();
+    const folder = zip.folder('eqplus-presets');
+    presets.forEach(preset => {
+      const lines = [
+        '# This preset was exported from eq+',
+        `# [VERSION] : ${version}`,
+        `# [NAME]    : ${preset.name}`,
+        `# [DATE]    : ${date}`
+      ];
+      lines.push(`Preamp: ${preset.preampGain.toFixed(1)} dB`);
+      preset.filters.forEach((filter, ix) => lines.push(filterToApoLine(filter, ix)));
+
+      folder?.file(`${preset.name}.txt`, lines.join('\n'));
+    });
+    zip.generateAsync({ type: 'blob' }).then(blob => downloadBlob(blob, `eqplus-presets-export-${date}.zip`));
+  });
+}
+
+
+/** IMPORTER **/
 
 const SILENTLY_IGNORE = ['Device'];
 const FILTER_KEY = 'Filter';
@@ -104,7 +167,6 @@ function processPreampLine(line: string): number {
 function importPreset(file: Blob): Promise<WithSoftErrors<{ preset: Preset}>> {
   return file.text().then(rawText => {
     const softErrors: string[] = [];
-    console.log(`rawText: ${rawText}`);
     const lines = rawText.split('\n').map(l => l.trim());
     const filters: FilterParams[] = [];
     let preamp = 0.0;
@@ -157,7 +219,18 @@ function importPreset(file: Blob): Promise<WithSoftErrors<{ preset: Preset}>> {
       },
       softErrors
     });
+  }).then(result => {
+    update<Preset[]>(StorageKeys.PRESETS, [], existing => {
+      if (existing.some(p => p.name.toLowerCase() === result.preset.name.toLowerCase())) {
+        throw Error('preset already exists');
+      }
+      return [...existing, result.preset];
+    });
+    return result;
   });
 }
 
-export default importPreset;
+export {
+  exportPresets, importPreset
+};
+

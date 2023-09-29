@@ -1,4 +1,4 @@
-import { FilterParams } from "./filter";
+import { FilterParams } from './filter';
 
 export type Preset = {
   name: string,

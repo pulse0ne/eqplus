@@ -1,4 +1,4 @@
-import { useTheme } from "styled-components";
+import { useTheme } from 'styled-components';
 
 type IconProps = {
   fill?: string,
@@ -12,11 +12,12 @@ const Logo = ({
   const theme = useTheme();
   return (
     <svg
-      fill={fill || theme.colors.textPrimary}
+      fill={fill || theme.colors.text}
       width={size}
       height={size}
       viewBox="0 0 135.46666 135.46667"
       version="1.1"
+      className="themed text"
     >
       <g id="layer1" transform="translate(0,-161.53332)">
         <g id="g1127" transform="matrix(1.1258235,0,0,1.1258235,-6.3281153,-36.303583)">

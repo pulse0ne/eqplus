@@ -1,10 +1,9 @@
+import { darken } from 'color2k';
 import { Component, Context, ContextType, createRef } from 'react';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
-import { AUDIO_CONTEXT, NYQUIST } from '../src-common/audio-constants';
-import { FREQ_START } from '../src-common/audio-constants';
+import { AUDIO_CONTEXT, FREQ_START, NYQUIST } from '../src-common/audio-constants';
 import { FilterChanges, IFilter } from '../src-common/types/filter';
 import { Theme } from '../src-common/types/theme';
-import { darken } from 'color2k';
 
 const TWO_PI = 2.0 * Math.PI;
 const HANDLE_RADIUS = 4.5;
@@ -209,7 +208,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     if (disabled) return;
     const active = activeNodeIndex !== null ? filters[activeNodeIndex] : null;
     if (active && active.usesQ()) {
-      const q = Math.max(0, Math.min(active.getQ() - e.deltaY / (wheelSensitivity / 10), 10));
+      const q = Math.max(0.1, Math.min(active.getQ() - e.deltaY / (wheelSensitivity / 10), 10));
       onFilterChanged?.({ q });
     }
   }
@@ -373,7 +372,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
   render() {
     const { width, height } = this.props;
     return (
-      <CanvasContainer w={width} h={height}>
+      <CanvasContainer w={width} h={height} className="themed accentPrimary disabled freqResponseLine graphBackground graphLine graphLineMarker graphText">
         <CanvasWrapper
           id="grid"
           ref={this.gridRef}

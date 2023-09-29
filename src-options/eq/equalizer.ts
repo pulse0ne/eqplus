@@ -1,26 +1,10 @@
-import debounce from '../../src-common/debounce';
 import { DEFAULT_STATE } from '../../src-common/defaults';
 import { StorageKeys } from '../../src-common/storage-keys';
-import { EQState } from '../../src-common/types/equalizer';
 import { FilterParams, IFilter } from '../../src-common/types/filter';
 import { toDecibel, toScalar } from '../../src-common/utils/scalarDecibelConverter';
-import { load, save } from '../../src-common/utils/storageUtils';
+import { load } from '../../src-common/utils/storageUtils';
 import contextHolder from './contextHolder';
 import { FilterNode } from './filters';
-
-const saveStateDebounced: (state: EQState) => void = debounce((state: EQState) => {
-  save(StorageKeys.EQ_STATE, state);
-}, 500);
-
-function filterParamsFromNode(node: FilterNode): FilterParams {
-  return {
-    id: node.id,
-    frequency: node.getFrequency(),
-    gain: node.getGain(),
-    q: node.getQ(),
-    type: node.getType()
-  };
-}
 
 export class Equalizer {
   private filters: FilterNode[];
@@ -37,16 +21,18 @@ export class Equalizer {
 
   connectToStream(stream: MediaStream) {
     this.source = contextHolder.getContext().createMediaStreamSource(stream);
-    this.source.connect(this.preamp);
     if (this.filters.length) {
       this.preamp.connect(this.filters[0].getBiquad());
     } else {
       this.preamp.connect(contextHolder.getContext().destination);
     }
+    this.source.connect(this.preamp);
   }
 
   disconnectFromStream() {
-    this.source?.mediaStream.getAudioTracks()[0].stop();
+    if (this.source) {
+      this.source.mediaStream.getAudioTracks()[0].stop();
+    }
     this.source = null;
     this.filters = [];
   }
@@ -61,59 +47,42 @@ export class Equalizer {
     this.bypassed = enabled;
   }
 
-  updateFilter(index: number, params: FilterParams): IFilter {
-    const targetFilter = this.filters[index];
+  updateFilter(id: string, params: FilterParams) {
+    const targetFilter = this.filters.find(f => f.id === id);
+    if (!targetFilter) return;
     const { frequency, gain, q, type } = params;
     targetFilter.setFrequency(frequency);
     targetFilter.setGain(gain);
     targetFilter.setQ(q);
     targetFilter.setType(type);
-    this.save();
-    return targetFilter;
   }
 
   updatePreamp(level: number = 0) {
     this.preamp.gain.value = toScalar(level);
-    this.save();
   }
 
   addFilter(params: FilterParams): IFilter {
+    this.disconnectNodes();
     const filter = FilterNode.fromFilterParams(params, contextHolder.getContext());
     this.filters.push(filter);
-    if (this.filters.length === 1) {
-      this.preamp.disconnect();
-      this.preamp.connect(filter.getBiquad());
-    } else {
-      const lastFilter = this.filters[this.filters.length - 1];
-      lastFilter.disconnect();
-      lastFilter.connect(filter.getBiquad());
-    }
-    filter.connect(contextHolder.getContext().destination);
-    this.save();
+    this.connectNodes();
     return filter;
   }
 
-  removeFilter(index: number) {
-    if (index === 0) {
-      this.preamp.disconnect();
-      this.filters[index].disconnect();
-      this.filters.splice(index, 1);
-      if (this.filters.length) {
-        this.preamp.connect(this.filters[0].getBiquad());
-      } else {
-        this.preamp.connect(contextHolder.getContext().destination);
-      }
-    } else {
-      this.filters[index - 1].disconnect();
-      this.filters[index].disconnect();
-      this.filters.splice(index, 1);
-      if (index === this.filters.length) {
-        this.filters[index - 1].connect(contextHolder.getContext(). destination);
-      } else {
-        this.filters[index - 1].connect(this.filters[index].getBiquad());
-      }
-    }
-    this.save();
+  removeFilter(id: string) {
+    const index = this.filters.findIndex(f => f.id === id);
+    if (index < 0) return;
+
+    this.disconnectNodes();
+    this.filters.splice(index, 1);
+    this.connectNodes();
+  }
+
+  setFilters(params: FilterParams[]) {
+    this.disconnectNodes();
+    this.filters.length = 0;
+    this.filters = params.map(p => FilterNode.fromFilterParams(p, contextHolder.getContext()));
+    this.connectNodes();
   }
 
   getFilter(index: number): IFilter {
@@ -139,8 +108,27 @@ export class Equalizer {
     })
   }
 
-  save() {
-    saveStateDebounced({ filters: this.filters.map(filterParamsFromNode), preamp: this.preamp.gain.value });
+  private disconnectNodes() {
+    this.source?.disconnect();
+    this.preamp.disconnect();
+    this.filters.forEach(f => f.disconnect());
+  }
+
+  private connectNodes() {
+    if (this.filters.length) {
+      this.filters.forEach((f, ix, arr) => {
+        if (ix > 0) {
+          this.filters[ix - 1].connect(f.getBiquad());
+        }
+        if (ix === arr.length - 1) {
+          f.connect(contextHolder.getContext().destination);
+        }
+      });
+      this.preamp.connect(this.filters[0].getBiquad());
+      this.source?.connect(this.preamp);
+    } else {
+      this.source?.connect(contextHolder.getContext().destination);
+    }
   }
 
   static fromParams(params: FilterParams[]): Equalizer {

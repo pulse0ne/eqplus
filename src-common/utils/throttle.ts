@@ -7,7 +7,7 @@ export default function throttle (func: Function, threshold: number) {
     const args = arguments;
     if (last && now < last + threshold) {
       clearTimeout(deferred);
-      deferred = setTimeout(function () {
+      deferred = window.setTimeout(function () {
         last = now;
         func.apply(null, args);
       }, threshold);

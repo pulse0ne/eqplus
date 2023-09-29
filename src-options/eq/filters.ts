@@ -1,15 +1,4 @@
-import { FilterParams, IFilter } from '../../src-common/types/filter';
-
-const FILTER_PARAM_MAPPING: Record<BiquadFilterType, { usesGain: boolean, usesQ: boolean }> = {
-  allpass: { usesGain: false, usesQ: true },
-  bandpass: { usesGain: false, usesQ: true },
-  highpass: { usesGain: false, usesQ: true },
-  highshelf: { usesGain: true, usesQ: false },
-  lowpass: { usesGain: false, usesQ: true },
-  lowshelf: { usesGain: true, usesQ: false },
-  notch: { usesGain: false, usesQ: true },
-  peaking: { usesGain: true, usesQ: true }
-};
+import { FILTER_PARAM_MAPPING, FilterParams, IFilter } from '../../src-common/types/filter';
 
 export class FilterNode implements IFilter {
   id: string;

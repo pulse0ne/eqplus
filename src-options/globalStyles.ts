@@ -14,7 +14,7 @@ const GlobalStyles = createGlobalStyle`
     padding: 0;
     font-family: 'Open Sans', sans-serif;
     background-color: ${({ theme }) => theme.colors.background};
-    color: ${({ theme }) => theme.colors.textPrimary};
+    color: ${({ theme }) => theme.colors.text};
     overscroll-behavior: none;
   }
 `;
