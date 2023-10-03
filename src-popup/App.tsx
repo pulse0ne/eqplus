@@ -18,6 +18,7 @@ import { Settings } from './Settings';
 import { ThemeBuilder } from './ThemeBuilder';
 import { Tutorial } from './Tutorial';
 import GlobalStyles from './globalStyles';
+import { Presets } from './Presets';
 
 const sendMessage = (type: MessageType, payload?: MessagePayload) => {
   chrome.runtime.sendMessage({ type, payload });
@@ -43,6 +44,7 @@ function App() {
   const [ preamp, setPreamp ] = useState(1.0);
   const [ showThemeBuilder, setShowThemeBuilder ] = useState(false);
   const [ showSettings, setShowSettings ] = useState(false);
+  const [ showPresets, setShowPresets ] = useState(false);
   const [ currentTab, setCurrentTab ] = useState<chrome.tabs.Tab|null>(null);
   const [ capturedTab, setCapturedTab ] = useState<chrome.tabs.Tab|null>(null);
   const [ tabInfo, setTabInfo ] = useState(DEFAULT_TAB_INFO);
@@ -156,7 +158,8 @@ function App() {
       </VBox>
 
       <HBox style={{ position: 'absolute', right: 12, bottom: 12, gap: 6 }} id="settings-themes">
-        <IconButton glyph="tune" onClick={() => setShowSettings(true)} size={20} />
+        <IconButton glyph="tune" onClick={() => setShowPresets(true)} size={20} />
+        <IconButton glyph="settings" onClick={() => setShowSettings(true)} size={20} />
         <IconButton glyph="brush" onClick={() => setShowThemeBuilder(true)} size={20} />
       </HBox>
 
@@ -170,10 +173,16 @@ function App() {
 
       {showSettings && (
         <Settings
-          currentState={{ filters, preamp }}
-          onLoadPreset={handleLoadPreset}
           close={() => setShowSettings(false)}
           onLaunchTutorial={handleLaunchTutorial}
+        />
+      )}
+
+      {showPresets && (
+        <Presets
+          currentState={{ filters, preamp }}
+          onLoadPreset={handleLoadPreset}
+          close={() => setShowPresets(false)}
         />
       )}
 

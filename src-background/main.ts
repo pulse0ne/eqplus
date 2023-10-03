@@ -147,46 +147,60 @@ chrome.tabs.onRemoved.addListener(closedTabId => {
 });
 
 /** EXPERIMENTAL **/
-chrome.tabs.onActivated.addListener(tabActiveInfo => {
-  chrome.tabs.get(tabActiveInfo.tabId)
-    .then(tab => {
-      // console.log('activated', tab.url);
-      if (tab.id) {
-        maybeCaptureTab(tab.id);
-      }
-    });
-});
+// chrome.tabs.onActivated.addListener(tabActiveInfo => {
+//   chrome.tabs.get(tabActiveInfo.tabId)
+//     .then(tab => {
+//       // console.log('activated', tab.url);
+//       if (tab.id) {
+//         maybeCaptureTab(tab.id);
+//       }
+//     });
+// });
 
-chrome.tabs.onUpdated.addListener(tabId => {
-  chrome.tabs.get(tabId)
-    .then(tab => {
-      // console.log('updated', tab.url);
-      if (tab.id) {
-        maybeCaptureTab(tab.id);
-      }
-    });
-});
+// chrome.tabs.onUpdated.addListener(tabId => {
+//   chrome.tabs.get(tabId)
+//     .then(tab => {
+//       // console.log('updated', tab.url);
+//       if (tab.id) {
+//         maybeCaptureTab(tab.id);
+//       }
+//     });
+// });
 
-const getDomain = (rawUrl: string|undefined) => {
-  if (!rawUrl) return '';
-  const url = new URL(rawUrl);
-  return url.hostname;
-};
+// const getDomain = (rawUrl: string|undefined) => {
+//   if (!rawUrl) return '';
+//   const url = new URL(rawUrl);
+//   return url.hostname;
+// };
 
-const maybeCaptureTab = async (tabId: number) => {
-  try {
-    const tab = await chrome.tabs.get(tabId);
-    // TODO: load saved domains
-    if (tab.active && tab.status === 'complete' && /youtube.com/.test(getDomain(tab.url))) {
-      const tabInfo = await load(StorageKeys.TAB_INFO, DEFAULT_TAB_INFO);
-      console.log(tabInfo);
-      if (!tabInfo.capturedTab && !tabInfo.eqPageId) {
-        handleStartCapture();
-      }
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
+// const maybeCaptureTab = async (tabId: number) => {
+//   try {
+//     const tab = await chrome.tabs.get(tabId);
+//     if (tab.active && tab.status === 'complete') {
+//       const autoCapMappings: AutoCaptureMapping[] = await load(StorageKeys.AUTO_CAPTURE, [{ enabled: true, domain: 'www.youtube.com' }]);
+//       const tabUrl = getDomain(tab.url);
+//       console.log(tabUrl);
+//       if (tabUrl.length > 0 && autoCapMappings.filter(m => m.enabled).some(m => tabUrl === m.domain)) {
+//         const mapping = autoCapMappings.find(m => tabUrl === m.domain)!!;
+//         const presetName = mapping.preset;
+//         if (presetName) {
+//           const presets = await load<Preset[]>(StorageKeys.PRESETS, []);
+//           const preset = presets.find(p => p.name === presetName);
+//           if (preset) {
+//             handleSetFilters(preset.filters);
+//             handleUpdatePreamp(preset.preampGain);
+//           }
+//         }
+//         const tabInfo = await load(StorageKeys.TAB_INFO, DEFAULT_TAB_INFO);
+//         console.log(tabInfo);
+//         if (!tabInfo.capturedTab && !tabInfo.eqPageId) {
+//           setTimeout(() => handleStartCapture(), 100);
+//         }
+//       }
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 export { }; // IMPORTANT: keep this

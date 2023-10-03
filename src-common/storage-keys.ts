@@ -1,8 +1,11 @@
+const key = (suffix: string) => `eqplus:${suffix}`;
+
 export namespace StorageKeys {
-  export const EQ_STATE = 'eqplus:state:eq';
-  export const THEME_STATE = 'eqplus:state:theme';
-  export const SAVED_THEMES = 'eqplus:themes';
-  export const PRESETS = 'eqplus:presets';
-  export const TAB_INFO = 'eqplus:tabinfo';
-  export const TUTORIAL_SEEN = 'explus:tutorial';
+  export const EQ_STATE = key('state:eq');
+  export const THEME_STATE = key('state:theme');
+  export const SAVED_THEMES = key('themes');
+  export const PRESETS = key('presets');
+  export const TAB_INFO = key('tabinfo');
+  export const TUTORIAL_SEEN = key('tutorial');
+  export const AUTO_CAPTURE = key('autocap');
 }
