@@ -26,13 +26,13 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     elementId: 'dial-freq',
-    message: `The 'Frequency' knob controls the selected node's position along the x-axis (frequency).`,
+    message: `The 'Frequency' knob controls the selected node's position along the x-axis (frequency). Lower frequencies correspond to 'bass' tones, and higher frequencies correspond to 'treble' tones.`,
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'dial-gain',
-    message: `The 'Gain' knob controls the selected node's position along the y-axis (gain).`,
+    message: `The 'Gain' knob controls the selected node's position along the y-axis (gain). Higher gain will provide a 'boost' at the node's frequency, and lower gain will provide a 'cut'.`,
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
@@ -68,7 +68,7 @@ const tutorialSteps: TutorialStep[] = [
   },
   {
     elementId: 'settings-themes',
-    message: `These buttons allow you to open the 'Settings' and 'Theme Builder' screens. Settings gives you control over saving, deleting, importing, and exporting presets, as well as performing a reset if something isn't working right. The Theme Builder allows you to completely customize the color scheme of eq+.`,
+    message: `These buttons allow you to open the 'Presets', 'Settings', and 'Theme Builder' screens. Presets gives you control over saving, deleting, importing, and exporting presets. Settings allows you to launch the User Guide, Tutorial, or perform a reset if something isn't working right. The Theme Builder allows you to completely customize the color scheme of eq+.`,
     blurbLocation: 'top-left',
     actionsType: 'NEXT'
   },

@@ -38,6 +38,8 @@ const stop = () => sendMessage('stopCapture');
 const getCurrentTab = () => chrome.tabs.query({ active: true, currentWindow: true })
   .then(tabs => tabs.length ? tabs[0] : null);
 
+const isTabCapturable = (currentTab: chrome.tabs.Tab|null) => currentTab && currentTab.url && !currentTab.url.startsWith('chrome');
+
 function App() {
   const [ theme, setTheme ] = useState<DefaultTheme>(DEFAULT_THEMES[0]);
   const [ filters, setFilters ] = useState<FilterParams[]>([]);
@@ -60,6 +62,17 @@ function App() {
     });
     load(StorageKeys.TAB_INFO, DEFAULT_TAB_INFO).then((tabInfo) => {
       setTabInfo(tabInfo);
+      if (!tabInfo.capturedTab) {
+        load(StorageKeys.CAPTURE_ON_OPEN, false).then(capOnOpen => {
+          if (capOnOpen) {
+            getCurrentTab().then(currentTab => {
+              if (isTabCapturable(currentTab)) {
+                start();
+              }
+            });
+          }
+        });
+      }
     });
     getCurrentTab().then(setCurrentTab);
 
@@ -84,7 +97,7 @@ function App() {
     }
   }, [tabInfo]);
 
-  const isCapturableTab = useMemo(() => currentTab && currentTab.url && !currentTab.url.startsWith('chrome'), [currentTab]);
+  const isCapturableTab = useMemo(() => isTabCapturable(currentTab), [currentTab]);
 
   const handleFilterChanged = useCallback((index: number, { frequency, gain, q, type }: FilterChanges) => {
     const filter = filters[index];

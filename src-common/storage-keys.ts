@@ -7,5 +7,6 @@ export namespace StorageKeys {
   export const PRESETS = key('presets');
   export const TAB_INFO = key('tabinfo');
   export const TUTORIAL_SEEN = key('tutorial');
-  export const AUTO_CAPTURE = key('autocap');
+  // export const AUTO_CAPTURE = key('autocap');
+  export const CAPTURE_ON_OPEN = key('captureonopen');
 }
