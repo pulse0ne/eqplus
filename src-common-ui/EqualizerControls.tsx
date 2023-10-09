@@ -16,10 +16,6 @@ const FILTER_ADD_REMOVE_BTN_SIZE = 32;
 
 const frequencyToValue = (value: number) => (Math.log10(value / NYQUIST) / Math.log10(NYQUIST / FREQ_START)) + 1;
 const valueToFrequency = (value: number) => Math.pow(10, (Math.log10(NYQUIST / FREQ_START) * (value - 1)) + Math.log10(NYQUIST));
-const truncn = (value: number, dec: number) => {
-  const p = Math.pow(10, dec);
-  return Math.round(value + Number.EPSILON * p) / p;
-};
 
 const AUDIO_ICON_FILTER_MAP: Record<BiquadFilterType, string> = {
   allpass: 'filter-bypass',
@@ -69,9 +65,9 @@ function EqualizerControls({
   onFilterAdded,
   onFilterRemoved
 }: EqualizerControlsProps) {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [currentParams, setCurrentParams] = useState<FilterParameters>(DEFAULT_PARAMS);
-  const [lastFiltersLength, setLastFiltersLength] = useState(0);
+  const [ selectedIndex, setSelectedIndex ] = useState<number | null>(null);
+  const [ currentParams, setCurrentParams ] = useState<FilterParameters>(DEFAULT_PARAMS);
+  const [ lastFiltersLength, setLastFiltersLength ] = useState(0);
 
   const theme = useTheme();
 
@@ -141,7 +137,7 @@ function EqualizerControls({
   }, [handleFilterChanged]);
 
   const handleFreqChanged = useCallback((freq: number) => {
-    handleFilterChanged({ frequency: Math.trunc(valueToFrequency(freq)) });
+    handleFilterChanged({ frequency: valueToFrequency(freq) });
   }, [handleFilterChanged]);
 
   const handleQChanged = useCallback((q: number) => {
@@ -204,7 +200,7 @@ function EqualizerControls({
                 onChange={handleGainChanged}
               />
               <NumberEditLabel
-                value={truncn(currentParams.gain, 2)}
+                value={currentParams.gain}
                 min={-20}
                 max={20}
                 disabled={selectedIndex === null || !FILTER_PARAM_MAPPING[currentParams.type].usesGain}
@@ -224,7 +220,7 @@ function EqualizerControls({
                 onChange={handleQChanged}
               />
               <NumberEditLabel
-                value={truncn(currentParams.q, 2)}
+                value={currentParams.q}
                 min={0.1}
                 max={10}
                 disabled={selectedIndex === null || !FILTER_PARAM_MAPPING[currentParams.type].usesQ}
@@ -243,7 +239,7 @@ function EqualizerControls({
                 onChange={handlePreampChanged}
               />
               <NumberEditLabel
-                value={truncn(preamp, 2)}
+                value={preamp}
                 min={-20}
                 max={20}
                 label={`${preamp.toFixed(2)} dB`}
