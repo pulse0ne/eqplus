@@ -36,7 +36,8 @@ function NumberEditLabel({
   disabled = false
 }: NumberEditLabelProps) {
   const [ edit, setEdit ] = useState(false);
-  const [ valInternal, setValInternal ] = useState(0);
+  const [ lastValidValue, setLastValidValue ] = useState(value);
+  const [ valInternal, setValInternal ] = useState('');
   const inputRef = useRef<HTMLInputElement|null>(null);
 
   useEffect(() => {
@@ -47,29 +48,33 @@ function NumberEditLabel({
   }, [edit]);
 
   const labelClicked = useCallback(() => {
+    console.log(value);
     if (disabled) return;
-    setValInternal(value);
+    setValInternal(value.toString());
     setEdit(true);
   }, [disabled, value]);
 
   const handleBlur = useCallback(() => {
-    let f = valInternal;
+    let f = parseFloat(valInternal);
+    if (isNaN(f)) {
+      setValInternal(lastValidValue.toString());
+      setEdit(false);
+      return;
+    }
     if (min && f < min) {
       f = min;
     }
     if (max && f > max) {
       f = max;
     }
-    setValInternal(f);
+    setLastValidValue(f);
+    setValInternal(f.toString());
     setEdit(false);
     onChange(f);
   }, [min, max, valInternal]);
 
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
-    const f = parseFloat((e.target as HTMLInputElement).value);
-    if (!isNaN(f)) {
-      setValInternal(f);
-    }
+    setValInternal((e.target as HTMLInputElement).value);
   }, []);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -77,7 +82,7 @@ function NumberEditLabel({
       handleBlur();
     }
   }, [handleBlur]);
-
+  
   return (
     <div className="themed controlLabel">
       {edit ? (
