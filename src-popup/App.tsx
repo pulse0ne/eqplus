@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DefaultTheme, ThemeProvider } from 'styled-components';
 import { Button, EqualizerControls, HBox, IconButton, VBox } from '../src-common-ui';
 import debounce from '../src-common/debounce';
-import { DEFAULT_STATE, DEFAULT_TAB_INFO, DEFAULT_THEMES } from '../src-common/defaults';
+import { DEFAULT_SETTINGS, DEFAULT_STATE, DEFAULT_TAB_INFO, DEFAULT_THEMES } from '../src-common/defaults';
 import { StorageKeys } from '../src-common/storage-keys';
 import { FilterChanges, FilterParams } from '../src-common/types/filter';
 import { MessagePayload, MessageType } from '../src-common/types/messaging';
@@ -19,6 +19,7 @@ import { ThemeBuilder } from './ThemeBuilder';
 import { Tutorial } from './Tutorial';
 import GlobalStyles from './globalStyles';
 import { Presets } from './Presets';
+import { UserSettings } from '../src-common/types/settings';
 
 const sendMessage = (type: MessageType, payload?: MessagePayload) => {
   chrome.runtime.sendMessage({ type, payload });
@@ -51,6 +52,7 @@ function App() {
   const [ capturedTab, setCapturedTab ] = useState<chrome.tabs.Tab|null>(null);
   const [ tabInfo, setTabInfo ] = useState(DEFAULT_TAB_INFO);
   const [ showTutorial, setShowTutorial ] = useState(false);
+  const [ settings, setSettings ] = useState<UserSettings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
     load(StorageKeys.THEME_STATE, { currentTheme: DEFAULT_THEMES[0] }).then(state => {
@@ -63,8 +65,9 @@ function App() {
     load(StorageKeys.TAB_INFO, DEFAULT_TAB_INFO).then((tabInfo) => {
       setTabInfo(tabInfo);
       if (!tabInfo.capturedTab) {
-        load(StorageKeys.CAPTURE_ON_OPEN, false).then(capOnOpen => {
-          if (capOnOpen) {
+        load(StorageKeys.SETTINGS, DEFAULT_SETTINGS).then(settings => {
+          setSettings(settings);
+          if (settings.captureOnOpen) {
             getCurrentTab().then(currentTab => {
               if (isTabCapturable(currentTab)) {
                 start();
@@ -144,12 +147,18 @@ function App() {
     setShowTutorial(false);
   }, []);
 
+  const handleSettingsChanged = useCallback((newSettings: UserSettings) => {
+    save(StorageKeys.SETTINGS, newSettings);
+    setSettings(newSettings);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <VBox alignItems="center" style={{ padding: '6px', height: '100%' }}>
         <EqualizerControls
           filters={filters}
           preamp={preamp}
+          drawCompositeResponse={settings.drawCompositeResponse}
           onFilterAdded={handleAddFilter}
           onFilterChanged={handleFilterChanged}
           onFilterRemoved={handleRemoveFilter}
@@ -186,6 +195,8 @@ function App() {
 
       {showSettings && (
         <Settings
+          settings={settings}
+          onSettingsChanged={handleSettingsChanged}
           close={() => setShowSettings(false)}
           onLaunchTutorial={handleLaunchTutorial}
         />

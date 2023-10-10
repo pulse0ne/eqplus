@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Button, HBox, Icon, VBox, VSpacer } from '../src-common-ui';
+import { useCallback, useState } from 'react';
+import { useTheme } from 'styled-components';
+import { Button, HBox, VBox, VSpacer } from '../src-common-ui';
+import { UserSettings } from '../src-common/types/settings';
 import { ClickableIcon, CloseButton, DialogWrapper } from './Common';
-import { load, save } from '../src-common/utils/storageUtils';
-import { StorageKeys } from '../src-common/storage-keys';
-import styled, { useTheme } from 'styled-components';
 
 const openUserGuide = () => {
   chrome.tabs.create({
@@ -15,19 +14,18 @@ const openUserGuide = () => {
 
 export type SettingsProps = {
   close: () => void,
+  settings: UserSettings,
+  onSettingsChanged: (newSettings: UserSettings) => void,
   onLaunchTutorial: () => void
 };
 
 function Settings({
   close,
+  settings,
+  onSettingsChanged,
   onLaunchTutorial
 }: SettingsProps) {
   const [ showResetWarning, setShowResetWarning ] = useState(false);
-  const [ captureOnOpen, setCaptureOnOpen ] = useState(false);
-
-  useEffect(() => {
-    load(StorageKeys.CAPTURE_ON_OPEN, false).then(setCaptureOnOpen);
-  }, []);
 
   const theme = useTheme();
 
@@ -38,12 +36,12 @@ function Settings({
   }, []);
 
   const handleCaptureOnOpenToggle = useCallback(() => {
-    setCaptureOnOpen(oldVal => {
-      const newVal = !oldVal;
-      save(StorageKeys.CAPTURE_ON_OPEN, newVal);
-      return newVal;
-    });
-  }, []);
+    onSettingsChanged({ ...settings, captureOnOpen: !settings.captureOnOpen });
+  }, [settings]);
+
+  const handleDrawCompositeResponseToggle = useCallback(() => {
+    onSettingsChanged({ ...settings, drawCompositeResponse: !settings.drawCompositeResponse });
+  }, [settings]);
 
   return (
     <DialogWrapper>
@@ -54,13 +52,23 @@ function Settings({
 
       <VSpacer size={2} />
 
-      <HBox style={{ gap: '8px' }} alignItems="center">
+      <HBox style={{ gap: '8px' }} alignItems="center" justifyContent="space-between">
         <span title="Enabling this will start a capture when you open the eq+ popup, without having to push the 'Capture Tab' button">Capture on open:</span>
         <ClickableIcon
           size={32}
-          glyph={captureOnOpen ? 'toggle_on' : 'toggle_off'}
-          style={{ color: captureOnOpen ? theme.colors.accentPrimary : theme.colors.text }}
+          glyph={settings.captureOnOpen ? 'toggle_on' : 'toggle_off'}
+          style={{ color: settings.captureOnOpen ? theme.colors.accentPrimary : theme.colors.text }}
           onClick={handleCaptureOnOpenToggle}
+        />
+      </HBox>
+
+      <HBox style={{ gap: '8px' }} alignItems="center" justifyContent="space-between">
+        <span title="Enabling this will draw the composite response line">Draw composite response:</span>
+        <ClickableIcon
+          size={32}
+          glyph={settings.drawCompositeResponse ? 'toggle_on' : 'toggle_off'}
+          style={{ color: settings.drawCompositeResponse ? theme.colors.accentPrimary : theme.colors.text }}
+          onClick={handleDrawCompositeResponseToggle}
         />
       </HBox>
 

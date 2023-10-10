@@ -51,6 +51,7 @@ const DEFAULT_PARAMS: FilterParameters = {
 export type EqualizerControlsProps = {
   filters: FilterParams[],
   preamp: number,
+  drawCompositeResponse?: boolean,
   onFilterChanged: (index: number, changes: FilterChanges) => void,
   onPreampChanged: (value: number) => void,
   onFilterAdded: (freq: number) => void,
@@ -60,6 +61,7 @@ export type EqualizerControlsProps = {
 function EqualizerControls({
   filters,
   preamp,
+  drawCompositeResponse,
   onFilterChanged,
   onPreampChanged,
   onFilterAdded,
@@ -157,6 +159,7 @@ function EqualizerControls({
       <CanvasPlot
         width={788}
         disabled={false}
+        drawCompositeResponse={drawCompositeResponse}
         filters={filters.map(i => DisplayFilterNode.fromFilterParams(i))}
         activeNodeIndex={selectedIndex}
         onHandleSelected={setSelectedIndex}

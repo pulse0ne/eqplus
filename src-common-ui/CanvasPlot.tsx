@@ -1,9 +1,17 @@
-import { darken } from 'color2k';
+import { darken, opacify, transparentize } from 'color2k';
 import { Component, Context, ContextType, createRef } from 'react';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { AUDIO_CONTEXT, FREQ_START, NYQUIST } from '../src-common/audio-constants';
 import { FilterChanges, IFilter } from '../src-common/types/filter';
 import { Theme } from '../src-common/types/theme';
+import clamp from '../src-common/utils/clamp';
+import { Color } from '../src-common/types/color';
+
+const TEST_COLORS = [
+  [255, 0, 0],
+  [0, 255, 0],
+  [0, 0, 255]
+];
 
 const TWO_PI = 2.0 * Math.PI;
 const HANDLE_RADIUS = 4.5;
@@ -42,6 +50,7 @@ type CanvasPlotProps = {
   filters: IFilter[],
   disabled: boolean,
   wheelSensitivity?: number,
+  drawCompositeResponse?: boolean,
   onFilterChanged?: (changes: FilterChanges) => void,
   onHandleSelected?: (index: number) => void,
   onFilterAdded?: (atFrequency: number) => void
@@ -64,7 +73,8 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
 
   static defaultProps = {
     width: 750, 
-    height: 400
+    height: 400,
+    drawCompositeResponse: true
   };
 
   state: CanvasPlotState = {
@@ -176,7 +186,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
   }
 
   handleMouseMove(e: React.MouseEvent) {
-    const { disabled, filters, activeNodeIndex, onFilterChanged } = this.props;
+    const { disabled, filters, activeNodeIndex, onFilterChanged, height } = this.props;
     if (disabled) return;
     const { offsetX, offsetY } = e.nativeEvent;
     if (!offsetX && !offsetY) return; // when mouse stops, these are 0
@@ -192,10 +202,18 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
       if (activeNodeIndex !== null) {
         const active = filters[activeNodeIndex];
         const m = this.graphRef.current!.width / Math.log10(NYQUIST / FREQ_START);
-        const [ adjustedX, adjustedY ] = [ offsetX * DPR(), offsetY * DPR() ];
+        const adjustedX = offsetX * DPR();
+        let adjustedY = offsetY * DPR();
+        if (active.getType() === 'lowshelf' || active.getType() === 'highshelf') {
+          const zeroY = height * 0.5;
+          const diffFromZero = offsetY - zeroY;
+          const y = (diffFromZero * 2) + zeroY;
+          adjustedY = y * DPR();
+        }
         const frequency = Math.pow(10, adjustedX / m) * FREQ_START;
         if (active.usesGain()) {
-          onFilterChanged?.({ frequency, gain: DB_SCALE * (((-2 * adjustedY) / this.graphRef.current!.height) + 1) });
+          const gain = clamp(DB_SCALE * (((-2 * adjustedY) / this.graphRef.current!.height) + 1), -1.0 * DB_SCALE, DB_SCALE);
+          onFilterChanged?.({ frequency, gain });
         } else {
           onFilterChanged?.({ frequency });
         }
@@ -270,7 +288,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     }
   }
 
-  private drawFrLine(): number[] {
+  private drawFrLine() {
     const graph = this.graphRef.current;
     if (!graph) return [];
     const { width, height } = this.props;
@@ -289,40 +307,68 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
       freqHz[x] = Math.pow(10, (x / mVal)) * FREQ_START;
     }
 
-    const magRes: Float32Array[] = [];
+    if (this.props.drawCompositeResponse) {
+      const magRes = filters.map((f, ix) => {
+        const filterNode = this.filterNodes[ix];
+        filterNode.frequency.value = f.getFrequency();
+        filterNode.gain.value = f.getGain();
+        filterNode.Q.value = f.getQ();
+        filterNode.type = f.getType();
+        const response = new Float32Array(width);
+        filterNode.getFrequencyResponse(freqHz, response, new Float32Array(width));
+        return response;
+      });
+
+      graphCtx.beginPath();
+      graphCtx.lineWidth = 2;
+      graphCtx.strokeStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
+
+      for (let i = 0; i < width; ++i) {
+        const response = magRes.reduce((a, c) => a * c[i], 1);
+        const dbResponse = 20.0 * Math.log10(Math.abs(response) || 1);
+        const y = (0.5 * height) * (1 - dbResponse / DB_SCALE);
+        if (i === 0) {
+          graphCtx.moveTo(i, y);
+        } else {
+          graphCtx.lineTo(i, y);
+        }
+      }
+      graphCtx.stroke();
+  }
+
+    // draw individual bands
     filters.forEach((f, ix) => {
       const filterNode = this.filterNodes[ix];
       filterNode.frequency.value = f.getFrequency();
       filterNode.gain.value = f.getGain();
       filterNode.Q.value = f.getQ();
       filterNode.type = f.getType();
-      const mr = new Float32Array(width);
-      filterNode.getFrequencyResponse(freqHz, mr, new Float32Array(width));
-      magRes.push(mr);
-    });
+      const response = new Float32Array(width);
+      filterNode.getFrequencyResponse(freqHz, response, new Float32Array(width));
 
-    graphCtx.beginPath();
-    graphCtx.lineWidth = 2;
-    graphCtx.strokeStyle = disabled ? theme.colors.disabled : theme.colors.freqResponseLine;
+      const colorKey = `graphNodeColor${(ix % 4) + 1}` as keyof Theme['colors'];
+      const color = theme.colors[colorKey];
 
-    const yVals = [];
-    for (let i = 0; i < width; ++i) {
-      const response = magRes.reduce((a, c) => a * c[i], 1);
-      const dbResponse = 20.0 * Math.log10(Math.abs(response) || 1);
-      const y = (0.5 * height) * (1 - dbResponse / DB_SCALE);
-      if (i === 0) {
-        graphCtx.moveTo(i, y);
-      } else {
+      graphCtx.beginPath();
+      graphCtx.lineWidth = 2;
+      graphCtx.strokeStyle = transparentize(color, 0.2);
+      graphCtx.fillStyle = transparentize(color, 0.3);
+      graphCtx.moveTo(0, 0.5 * height);
+
+      for (let i = 0; i < width; ++i) {
+        const r = response[i];
+        const dbResponse = 20.0 * Math.log10(Math.abs(r) || 1);
+        const y = (0.5 * height) * (1 - dbResponse / DB_SCALE);
         graphCtx.lineTo(i, y);
       }
-      yVals.push(y);
-    }
-    graphCtx.stroke();
 
-    return yVals;
+      graphCtx.lineTo(width, 0.5 * height);
+      graphCtx.stroke();
+      graphCtx.fill();
+    });
   }
 
-  private drawHandles(yVals: number[]) {
+  private drawHandles() {
     const graph = this.graphRef.current;
     if (!graph) return;
     const { width, height } = this.props;
@@ -331,13 +377,24 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     const newHandleLocations: Record<string, Point2D> = {};
     const { filters, disabled, activeNodeIndex } = this.props;
     const theme = this.context;
+
+    const zeroY = 0.5 * height;
     filters.forEach((f, ix) => {
-      const buffer = 0;
       const x = Math.floor(mVal * Math.log10(f.getFrequency() / FREQ_START));
-      const y = (f.usesGain() ? Math.min(Math.max(10, yVals[x]), height + buffer) : height * 0.5) - buffer;
+      let y = zeroY;
+      if (f.usesGain()) {
+        y = zeroY * (1 - f.getGain() / DB_SCALE);
+        if (f.getType() === 'lowshelf' || f.getType() === 'highshelf') {
+          const diffFromZero = y - zeroY;
+          y = (diffFromZero * 0.5) + zeroY;
+        }
+      }
       const active = ix === activeNodeIndex;
 
-      graphCtx.strokeStyle = disabled ? theme.colors.disabled : (active ? theme.colors.accentPrimary : darken(theme.colors.accentPrimary, 0.1));
+      const colorKey = `graphNodeColor${(ix % 4) + 1}` as keyof Theme['colors'];
+      const color = theme.colors[colorKey];
+
+      graphCtx.strokeStyle = disabled ? theme.colors.disabled : (active ? color : darken(color, 0.1));
       graphCtx.lineWidth = 3;
       graphCtx.beginPath();
       const r = active ? SELECTED_HANDLE_RADIUS : HANDLE_RADIUS;
@@ -345,16 +402,16 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
       graphCtx.stroke();
 
       if (active) {
-        graphCtx.fillStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
+        graphCtx.fillStyle = disabled ? theme.colors.disabled : opacify(color, 1.0);
         graphCtx.fill();
         graphCtx.beginPath();
         graphCtx.arc(x, y, r, 0, TWO_PI);
-        graphCtx.filter = active ? 'blur(16px)' : 'none';
+        graphCtx.filter = 'blur(16px)';
         graphCtx.fill();
         graphCtx.fillStyle = theme.colors.background;
         graphCtx.filter = 'none';
       } else {
-        graphCtx.fillStyle = disabled ? theme.colors.disabled : theme.colors.accentPrimary;
+        graphCtx.fillStyle = disabled ? theme.colors.disabled : color;
       }
 
       newHandleLocations[f.id] = { x, y };
@@ -365,14 +422,14 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
   private draw() {
     const graph = this.graphRef.current;
     if (!graph) return;
-    const yVals = this.drawFrLine();
-    this.drawHandles(yVals);
+    this.drawFrLine();
+    this.drawHandles();
   }
 
   render() {
     const { width, height } = this.props;
     return (
-      <CanvasContainer w={width} h={height} className="themed accentPrimary disabled freqResponseLine graphBackground graphLine graphLineMarker graphText">
+      <CanvasContainer w={width} h={height} className="themed accentPrimary disabled graphBackground graphLine graphLineMarker graphNodeColor1 graphNodeColor2 graphNodeColor3 graphNodeColor4 graphText">
         <CanvasWrapper
           id="grid"
           ref={this.gridRef}
