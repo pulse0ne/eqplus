@@ -1,7 +1,7 @@
 {
   "name": "eqplus",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "build": "yarn build:background && yarn build:options && yarn build:popup",
