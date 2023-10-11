@@ -145,24 +145,6 @@ function Dial({
     e.preventDefault();
   }, []);
 
-  const mouseDown = useCallback((e: React.MouseEvent) => {
-    if (disabled) return;
-    const { pageX, pageY } = e;
-    setXy({ x: pageX, y: pageY });
-    document.addEventListener('mousemove', mouseMove);
-    document.addEventListener('mouseup', mouseUp);
-  }, [disabled]);
-
-  const mouseWheel = useCallback((e: React.WheelEvent) => {
-    if (disabled) return;
-    const scale = (max - min) / sensitivity;
-    const d = -e.deltaY * scale;
-    const nv = Math.max(min, Math.min(value + d, max));
-    if (d !== 0) {
-      onChange(nv);
-    }
-  }, [disabled, min, max, sensitivity, value, onChange]);
-
   const mouseMove = useEvent((e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -185,7 +167,25 @@ function Dial({
   const mouseUp = useCallback(() => {
     document.removeEventListener('mousemove', mouseMove);
     document.removeEventListener('mouseup', mouseUp);
-  }, []);
+  }, [mouseMove]);
+
+  const mouseDown = useCallback((e: React.MouseEvent) => {
+    if (disabled) return;
+    const { pageX, pageY } = e;
+    setXy({ x: pageX, y: pageY });
+    document.addEventListener('mousemove', mouseMove);
+    document.addEventListener('mouseup', mouseUp);
+  }, [disabled, mouseMove, mouseUp]);
+
+  const mouseWheel = useCallback((e: React.WheelEvent) => {
+    if (disabled) return;
+    const scale = (max - min) / sensitivity;
+    const d = -e.deltaY * scale;
+    const nv = Math.max(min, Math.min(value + d, max));
+    if (d !== 0) {
+      onChange(nv);
+    }
+  }, [disabled, min, max, sensitivity, value, onChange]);
 
   const handleZero = useCallback(() => {
     !disabled && onZero?.();

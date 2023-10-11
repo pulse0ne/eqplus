@@ -35,12 +35,12 @@ function Toast({
   useEffect(() => {
     const id = setTimeout(onClose, timeoutMs);
     return () => clearTimeout(id);
-  }, []);
+  }, [onClose, timeoutMs]);
   return (
     <ToastWrapper>
       <HBox alignItems="center" style={{ gap: '6px' }}>
         <Icon glyph={glyph} />
-        <ToastMessage>{messages.map(m => <span>{m}</span>)}</ToastMessage>
+        <ToastMessage>{messages.map(m => <span key={m}>{m}</span>)}</ToastMessage>
       </HBox>
     </ToastWrapper>
   );

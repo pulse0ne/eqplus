@@ -105,7 +105,7 @@ export class Equalizer {
     load(StorageKeys.EQ_STATE, DEFAULT_STATE).then(state => {
       this.updatePreamp(state.preamp);
       state.filters.forEach(f => this.addFilter(f));
-    })
+    });
   }
 
   private disconnectNodes() {

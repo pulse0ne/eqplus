@@ -163,17 +163,17 @@ function ThemeBuilder({
         [currentKey]: newColor as Color
       }
     });
-  }, [currentKey, currentTheme]);
+  }, [currentKey, currentTheme, themeChanged]);
 
   const handleColorInput = useCallback((rgb: 'r'|'g'|'b', e: ChangeEvent<HTMLInputElement>) => {
-    let extracted = extractRGBA(currentTheme.colors[currentKey]);
+    const extracted = extractRGBA(currentTheme.colors[currentKey]);
     extracted[rgb] = clamp(parseInt(e.target.value), 0, 255);
-    handleColorChange(`rgba(${extracted.r}, ${extracted.g}, ${extracted.b}, ${extracted.a})`)
-  }, [currentKey, currentTheme]);
+    handleColorChange(`rgba(${extracted.r}, ${extracted.g}, ${extracted.b}, ${extracted.a})`);
+  }, [currentKey, currentTheme.colors, handleColorChange]);
 
   const handleLoadTheme = useCallback((theme: Theme) => {
     themeChanged(theme);
-  }, []);
+  }, [themeChanged]);
 
   const handleDeleteTheme = useCallback((theme: Theme) => {
     if (theme.locked) return;
@@ -226,7 +226,7 @@ function ThemeBuilder({
 
         <VSpacer size={2} />
         <LabeledSelect label="Color Class" onChange={handleKeyChange}>
-          {Object.keys(DEFAULT_THEMES[0].colors).map(colorKey => <option value={colorKey}>{camelToTitle(colorKey)}</option>)}
+          {Object.keys(DEFAULT_THEMES[0].colors).map(colorKey => <option key={colorKey} value={colorKey}>{camelToTitle(colorKey)}</option>)}
         </LabeledSelect>
         <VSpacer size={2} />
         <ColorPicker color={currentTheme.colors[currentKey]} onChange={handleColorChange} />

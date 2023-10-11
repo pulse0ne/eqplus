@@ -14,66 +14,66 @@ type TutorialStep = {
 
 const tutorialSteps: TutorialStep[] = [
   {
-    message: `Welcome to eq+! This tutorial will guide you through the various features. Or, if you're familiar with audio equalization and ready to jump in, you can skip the tutorial altogether.`,
+    message: 'Welcome to eq+! This tutorial will guide you through the various features. Or, if you\'re familiar with audio equalization and ready to jump in, you can skip the tutorial altogether.',
     blurbLocation: 'center',
     actionsType: 'START'
   },
   {
     elementId: 'graph',
-    message: `This is the equalizer window. The selected node is a filled in circle. You can click to select and drag nodes to different positions. Double-clicking will add a new node. Scrolling allows you to change the Q value of a node.`,
+    message: 'This is the equalizer window. The selected node is a filled in circle. You can click to select and drag nodes to different positions. Double-clicking will add a new node. Scrolling allows you to change the Q value of a node.',
     blurbLocation: 'bottom-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'dial-freq',
-    message: `The 'Frequency' knob controls the selected node's position along the x-axis (frequency). Lower frequencies correspond to 'bass' tones, and higher frequencies correspond to 'treble' tones.`,
+    message: 'The \'Frequency\' knob controls the selected node\'s position along the x-axis (frequency). Lower frequencies correspond to \'bass\' tones, and higher frequencies correspond to \'treble\' tones.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'dial-gain',
-    message: `The 'Gain' knob controls the selected node's position along the y-axis (gain). Higher gain will provide a 'boost' at the node's frequency, and lower gain will provide a 'cut'.`,
+    message: 'The \'Gain\' knob controls the selected node\'s position along the y-axis (gain). Higher gain will provide a \'boost\' at the node\'s frequency, and lower gain will provide a \'cut\'.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'dial-q',
-    message: `The 'Q' knob controls the selected node's quality setting. Lower values result in a wider curve, while higher values result in a narrower, sharper curve.`,
+    message: 'The \'Q\' knob controls the selected node\'s quality setting. Lower values result in a wider curve, while higher values result in a narrower, sharper curve.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'dial-preamp',
-    message: `The 'Preamp' knob controls the input gain.`,
+    message: 'The \'Preamp\' knob controls the input gain.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'filter-type',
-    message: `The 'Filter Type' selector allows you to change the filter type.`,
+    message: 'The \'Filter Type\' selector allows you to change the filter type.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'add-remove',
-    message: `The 'Add' and 'Remove' buttons allow you to add or remove nodes.`,
+    message: 'The \'Add\' and \'Remove\' buttons allow you to add or remove nodes.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'eq-tab',
-    message: `The 'Equalize Tab' button enables the equalizer for the current open tab.`,
+    message: 'The \'Equalize Tab\' button enables the equalizer for the current open tab.',
     blurbLocation: 'top-center',
     actionsType: 'NEXT'
   },
   {
     elementId: 'settings-themes',
-    message: `These buttons allow you to open the 'Presets', 'Settings', and 'Theme Builder' screens. Presets gives you control over saving, deleting, importing, and exporting presets. Settings allows you to launch the User Guide, Tutorial, or perform a reset if something isn't working right. The Theme Builder allows you to completely customize the color scheme of eq+.`,
+    message: 'These buttons allow you to open the \'Presets\', \'Settings\', and \'Theme Builder\' screens. Presets gives you control over saving, deleting, importing, and exporting presets. Settings allows you to launch the User Guide, Tutorial, or perform a reset if something isn\'t working right. The Theme Builder allows you to completely customize the color scheme of eq+.',
     blurbLocation: 'top-left',
     actionsType: 'NEXT'
   },
   {
-    message: `That's it! Click 'Done' to get started.`,
+    message: 'That\'s it! Click \'Done\' to get started.',
     blurbLocation: 'center',
     actionsType: 'END'
   }
@@ -161,8 +161,8 @@ function Tutorial({ onDone }: TutorialProps) {
     const step = tutorialSteps[currentStep];
     setCurrentInfo(step);
     if (step.elementId) {
-      const el = document.getElementById(step.elementId)!!;
-      const { x, y, width: w, height: h } = el?.getBoundingClientRect();
+      const el = document.getElementById(step.elementId)!;
+      const { x, y, width: w, height: h } = el.getBoundingClientRect();
 
       setIndicatorRect({ x, y, w, h });
       setBlurbStyle(calculateBlurbPosition({ x, y, w, h }, step.blurbLocation));
@@ -191,7 +191,7 @@ function Tutorial({ onDone }: TutorialProps) {
           <Button onClick={onDone}>Done</Button>
         );
     }
-  }, [currentStep, currentInfo]);
+  }, [currentInfo, next, onDone]);
 
   return (
     <TutorialWrapper>

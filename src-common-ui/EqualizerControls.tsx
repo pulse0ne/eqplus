@@ -51,6 +51,7 @@ const DEFAULT_PARAMS: FilterParameters = {
 export type EqualizerControlsProps = {
   filters: FilterParams[],
   preamp: number,
+  drawCompositeResponse?: boolean,
   onFilterChanged: (index: number, changes: FilterChanges) => void,
   onPreampChanged: (value: number) => void,
   onFilterAdded: (freq: number) => void,
@@ -60,6 +61,7 @@ export type EqualizerControlsProps = {
 function EqualizerControls({
   filters,
   preamp,
+  drawCompositeResponse,
   onFilterChanged,
   onPreampChanged,
   onFilterAdded,
@@ -97,7 +99,7 @@ function EqualizerControls({
   const handleFilterChanged = useCallback((changes: FilterChanges) => {
     if (selectedIndex === null) return;
     onFilterChanged(selectedIndex, changes);
-  }, [filters, selectedIndex]);
+  }, [onFilterChanged, selectedIndex]);
 
   const handleAddFilter = useCallback((freq?: number) => {
     let frequency: number;
@@ -118,7 +120,7 @@ function EqualizerControls({
       frequency = Math.sqrt(gap.l * gap.r);
     }
     onFilterAdded(frequency);
-  }, [filters]);
+  }, [filters, onFilterAdded]);
 
   const handleRemoveFilter = useCallback(() => {
     if (selectedIndex !== null) {
@@ -130,7 +132,7 @@ function EqualizerControls({
       }
       onFilterRemoved(indexToRemove);
     }
-  }, [filters, selectedIndex]);
+  }, [filters.length, onFilterRemoved, selectedIndex]);
 
   const handleGainChanged = useCallback((gain: number) => {
     handleFilterChanged({ gain });
@@ -150,13 +152,14 @@ function EqualizerControls({
 
   const handlePreampChanged = useCallback((value: number) => {
     onPreampChanged(value);
-  }, []);
+  }, [onPreampChanged]);
 
   return (
     <VBox>
       <CanvasPlot
         width={788}
         disabled={false}
+        drawCompositeResponse={drawCompositeResponse}
         filters={filters.map(i => DisplayFilterNode.fromFilterParams(i))}
         activeNodeIndex={selectedIndex}
         onHandleSelected={setSelectedIndex}

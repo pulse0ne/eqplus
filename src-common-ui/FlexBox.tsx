@@ -57,8 +57,7 @@ export const FlexBox = styled.div<FlexBoxProps>(({
   alignItems,
   justifyContent,
   justifyItems,
-  overflow,
-  theme,
+  overflow
 }) => ({
   display: display ?? 'flex',
   position,
@@ -85,15 +84,15 @@ export const FlexBox = styled.div<FlexBoxProps>(({
   alignItems,
   justifyContent,
   justifyItems,
-  overflow,
+  overflow
 }));
 
 export const HBox = styled(FlexBox)({
-  flexDirection: 'row',
+  flexDirection: 'row'
 });
 
 export type HSpacerProps = {
-  size?: number,
+  size?: number
 };
 
 export const HSpacer = styled.div<HSpacerProps>(({ size = 1 }) => `
@@ -103,11 +102,11 @@ export const HSpacer = styled.div<HSpacerProps>(({ size = 1 }) => `
 `);
 
 export const VBox = styled(FlexBox)({
-  flexDirection: 'column',
+  flexDirection: 'column'
 });
 
 export type VSpacerProps = {
-  size?: number,
+  size?: number
 };
 
 export const VSpacer = styled.div<VSpacerProps>(({ size = 1 }) => `

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "eq+",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Tyler Snedigar <snedigart@gmail.com>",
   "homepage_url": "https://github.com/pulse0ne/eqplus",
   "description": "In-browser parametric equalization",
