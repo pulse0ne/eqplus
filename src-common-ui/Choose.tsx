@@ -15,5 +15,5 @@ const StyledSelect = styled.select`
 `;
 
 export function NativeSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <StyledSelect {...props} className="themed selectBorder selectBackground selectText accentPrimary" />
-};
+  return <StyledSelect {...props} className="themed selectBorder selectBackground selectText accentPrimary" />;
+}

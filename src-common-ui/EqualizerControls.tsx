@@ -99,7 +99,7 @@ function EqualizerControls({
   const handleFilterChanged = useCallback((changes: FilterChanges) => {
     if (selectedIndex === null) return;
     onFilterChanged(selectedIndex, changes);
-  }, [filters, selectedIndex]);
+  }, [onFilterChanged, selectedIndex]);
 
   const handleAddFilter = useCallback((freq?: number) => {
     let frequency: number;
@@ -120,7 +120,7 @@ function EqualizerControls({
       frequency = Math.sqrt(gap.l * gap.r);
     }
     onFilterAdded(frequency);
-  }, [filters]);
+  }, [filters, onFilterAdded]);
 
   const handleRemoveFilter = useCallback(() => {
     if (selectedIndex !== null) {
@@ -132,7 +132,7 @@ function EqualizerControls({
       }
       onFilterRemoved(indexToRemove);
     }
-  }, [filters, selectedIndex]);
+  }, [filters.length, onFilterRemoved, selectedIndex]);
 
   const handleGainChanged = useCallback((gain: number) => {
     handleFilterChanged({ gain });
@@ -152,7 +152,7 @@ function EqualizerControls({
 
   const handlePreampChanged = useCallback((value: number) => {
     onPreampChanged(value);
-  }, []);
+  }, [onPreampChanged]);
 
   return (
     <VBox>

@@ -135,7 +135,7 @@ function App() {
     setFilters(preset.filters);
     handlePreampChanged(preset.preampGain);
     sendMessage('setFilters', preset.filters);
-  }, []);
+  }, [handlePreampChanged]);
 
   const handleLaunchTutorial = useCallback(() => {
     setShowSettings(false);

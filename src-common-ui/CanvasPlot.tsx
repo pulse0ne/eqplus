@@ -5,13 +5,6 @@ import { AUDIO_CONTEXT, FREQ_START, NYQUIST } from '../src-common/audio-constant
 import { FilterChanges, IFilter } from '../src-common/types/filter';
 import { Theme } from '../src-common/types/theme';
 import clamp from '../src-common/utils/clamp';
-import { Color } from '../src-common/types/color';
-
-const TEST_COLORS = [
-  [255, 0, 0],
-  [0, 255, 0],
-  [0, 0, 255]
-];
 
 const TWO_PI = 2.0 * Math.PI;
 const HANDLE_RADIUS = 4.5;
@@ -67,7 +60,7 @@ type CanvasPlotState = {
 export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
   static contextType: Context<DefaultTheme> = ThemeContext;
 
-  declare context: ContextType<typeof ThemeContext>
+  declare context: ContextType<typeof ThemeContext>;
 
   private previousContext: Theme|null = null;
 
@@ -85,7 +78,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
   graphRef = createRef<HTMLCanvasElement>();
 
   filterNodes: BiquadFilterNode[] = [];
-  handleLocations: Record<string, Point2D> = {}
+  handleLocations: Record<string, Point2D> = {};
 
   constructor(props: CanvasPlotProps) {
     super(props);
@@ -115,7 +108,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     this.previousContext = this.context;
   }
 
-  componentDidUpdate(prevProps: Readonly<CanvasPlotProps>) {
+  componentDidUpdate() {
     if (this.context !== this.previousContext) {
       window.requestAnimationFrame(this.drawGrid);
     }
@@ -255,7 +248,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
     for (let i = 1, j = FREQ_START; j < NYQUIST; ++i, j = Math.pow(10, i)) {
       [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(p => {
         if (i <= 1 && p === 1) return;
-        let x = Math.floor(m * Math.log10(p * j / FREQ_START)) + 0.5;
+        const x = Math.floor(m * Math.log10(p * j / FREQ_START)) + 0.5;
         gridCtx.beginPath();
         gridCtx.lineWidth = 1;
         gridCtx.strokeStyle = p === 1 ? colors.graphLineMarker : colors.graphLine;
@@ -267,7 +260,7 @@ export class CanvasPlot extends Component<CanvasPlotProps, CanvasPlotState> {
 
     // draw text for frequency
     Object.entries(FREQ_LINES).forEach(j => {
-      let x = m * Math.log10(j[1] / FREQ_START);
+      const x = m * Math.log10(j[1] / FREQ_START);
       gridCtx.lineWidth = 0.5;
       gridCtx.textAlign = 'center';
       gridCtx.fillStyle = colors.graphText;

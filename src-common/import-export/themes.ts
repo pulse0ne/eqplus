@@ -1,8 +1,8 @@
-import { StorageKeys } from "../../src-common/storage-keys";
-import { downloadBlob } from "../../src-common/utils/downloadBlob";
-import { load, update } from "../../src-common/utils/storageUtils";
-import { DEFAULT_THEMES } from "../defaults";
-import { Theme } from "../types/theme";
+import { StorageKeys } from '../../src-common/storage-keys';
+import { downloadBlob } from '../../src-common/utils/downloadBlob';
+import { load, update } from '../../src-common/utils/storageUtils';
+import { DEFAULT_THEMES } from '../defaults';
+import { Theme } from '../types/theme';
 
 /** EXPORTER **/
 
@@ -28,7 +28,7 @@ const validateSingle = (val: unknown) => {
   // check basic top-level fields
   if (!topLevelExpected.every(key => {
     return topLevelActual.includes(key) && 
-      (typeof paragon[key as keyof Theme] === typeof (val as Record<string, unknown>)[key])
+      (typeof paragon[key as keyof Theme] === typeof (val as Record<string, unknown>)[key]);
   })) {
     return false;
   }
@@ -45,7 +45,7 @@ const validateSingle = (val: unknown) => {
   // check color keys
   if (!colorExpected.every(key => {
     return colorActual.includes(key) &&
-      (typeof paragon.colors[key as keyof Theme['colors']] === typeof (withColor.colors as Record<string, unknown>)[key])
+      (typeof paragon.colors[key as keyof Theme['colors']] === typeof (withColor.colors as Record<string, unknown>)[key]);
   })) {
     return false;
   }

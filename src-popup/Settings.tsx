@@ -9,7 +9,7 @@ const openUserGuide = () => {
     active: true,
     pinned: false,
     url: 'https://github.com/pulse0ne/eqplus/wiki/User-Guide'
-  })
+  });
 };
 
 export type SettingsProps = {
@@ -37,11 +37,11 @@ function Settings({
 
   const handleCaptureOnOpenToggle = useCallback(() => {
     onSettingsChanged({ ...settings, captureOnOpen: !settings.captureOnOpen });
-  }, [settings]);
+  }, [onSettingsChanged, settings]);
 
   const handleDrawCompositeResponseToggle = useCallback(() => {
     onSettingsChanged({ ...settings, drawCompositeResponse: !settings.drawCompositeResponse });
-  }, [settings]);
+  }, [onSettingsChanged, settings]);
 
   return (
     <DialogWrapper>

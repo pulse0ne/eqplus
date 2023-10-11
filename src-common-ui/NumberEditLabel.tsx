@@ -71,7 +71,7 @@ function NumberEditLabel({
     setValInternal(f.toString());
     setEdit(false);
     onChange(f);
-  }, [min, max, valInternal]);
+  }, [valInternal, min, max, onChange, lastValidValue]);
 
   const handleInput = useCallback((e: React.FormEvent<HTMLInputElement>) => {
     setValInternal((e.target as HTMLInputElement).value);

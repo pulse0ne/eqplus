@@ -14,7 +14,7 @@ export class FilterNode implements IFilter {
   }
 
   setFrequency(freq: number): void {
-    this.setAudioParam('frequency', freq)
+    this.setAudioParam('frequency', freq);
   }
 
   getGain(): number {
