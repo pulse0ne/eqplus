@@ -64,19 +64,18 @@ function App() {
     });
     load(StorageKeys.TAB_INFO, DEFAULT_TAB_INFO).then((tabInfo) => {
       setTabInfo(tabInfo);
-      if (!tabInfo.capturedTab) {
-        load(StorageKeys.SETTINGS, DEFAULT_SETTINGS).then(settings => {
-          setSettings(settings);
-          if (settings.captureOnOpen) {
-            getCurrentTab().then(currentTab => {
-              if (isTabCapturable(currentTab)) {
-                start();
-              }
-            });
-          }
-        });
-      }
+      load(StorageKeys.SETTINGS, DEFAULT_SETTINGS).then(settings => {
+        setSettings(settings);
+        if (!tabInfo.capturedTab && settings.captureOnOpen) {
+          getCurrentTab().then(currentTab => {
+            if (isTabCapturable(currentTab)) {
+              start();
+            }
+          });
+        }
+      });
     });
+
     getCurrentTab().then(setCurrentTab);
 
     load(StorageKeys.TUTORIAL_SEEN, false).then(val => setShowTutorial(!val));
